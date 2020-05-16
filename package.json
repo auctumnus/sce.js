@@ -1,0 +1,52 @@
+{
+  "name": "scejs",
+  "version": "0.1.0",
+  "description": "Parses and runs Sound Change Engine (SCE) rules.",
+  "main": "dist/scejs.cjs.js",
+  "module": "dist/scejs.esm.js",
+  "browser": "dist/scejs.umd.js",
+  "scripts": {
+    "test": "xo && ava",
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "lint": "xo"
+  },
+  "keywords": [
+    "linguistics"
+  ],
+  "author": "auctumnus",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "@rollup/plugin-babel": "^5.0.0",
+    "@rollup/plugin-commonjs": "^11.1.0",
+    "@rollup/plugin-node-resolve": "^7.1.3",
+    "ava": "^3.8.2",
+    "husky": "^4.2.5",
+    "rollup": "^2.10.2",
+    "xo": "^0.30.0"
+  },
+  "dependencies": {
+    "core-js": "^3.6.5"
+  },
+  "ava": {
+    "nodeArguments": [
+      "--experimental-modules"
+    ]
+  },
+  "browserslist": [
+    "defaults"
+  ],
+  "xo": {
+    "space": 2
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}
