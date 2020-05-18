@@ -6,7 +6,7 @@
   "module": "dist/scejs.esm.js",
   "browser": "dist/scejs.umd.js",
   "scripts": {
-    "test": "xo && ava",
+    "test": "rollup -c && xo && ava",
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "lint": "xo"
@@ -33,16 +33,21 @@
   "dependencies": {
     "core-js": "^3.6.5"
   },
-  "ava": {
-    "nodeArguments": [
-      "--experimental-modules"
-    ]
-  },
   "browserslist": [
     "defaults"
   ],
   "xo": {
-    "space": 2
+    "space": 2,
+    "semicolon": false,
+    "rules": {
+      "object-curly-spacing": [
+        "error",
+        "always"
+      ],
+      "import/extensions": [
+        "off"
+      ]
+    }
   },
   "husky": {
     "hooks": {
