@@ -1,7 +1,12 @@
 {
-  "name": "scejs",
+  "name": "sce",
   "version": "0.1.0",
   "description": "Parses and runs Sound Change Engine (SCE) rules.",
+  "repository": "auctumnus/sce.js",
+  "homepage": "https://github.com/auctumnus/sce.js#readme",
+  "bugs": {
+    "url": "https://github.com/auctumnus/sce.js/issues"
+  },
   "main": "dist/scejs.cjs.js",
   "module": "dist/scejs.esm.js",
   "browser": "dist/scejs.umd.js",

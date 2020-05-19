@@ -5,12 +5,12 @@ The original (Python) implementation can be found [here](https://github.com/Kath
 ## installation
 sce.js can be added to a Node-based project by running
 ```bash
-npm install sce.js
+npm install sce
 ```
-once the package has been put onto NPM. Otherwise, you should be able to ``git clone`` the repository and require it as desired.
+Otherwise, you should be able to ``git clone`` the repository and require it as desired.
 It can also be used in non-Node browser-based projects through [unpkg](https://unpkg.com), as so:
 ```html
-<script src="unpkg.com/sce.js"></script>
+<script src="unpkg.com/sce"></script>
 ```
 See unpkg's documentation at the link above for more.
 
