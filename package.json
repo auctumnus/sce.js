@@ -6,10 +6,10 @@
   "module": "dist/scejs.esm.js",
   "browser": "dist/scejs.umd.js",
   "scripts": {
-    "test": "rollup -c && xo && ava",
+    "test": "rollup -c && standard --fix && ava",
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "lint": "xo"
+    "lint": "standard --fix"
   },
   "keywords": [
     "linguistics"
@@ -26,9 +26,10 @@
     "@rollup/plugin-commonjs": "^11.1.0",
     "@rollup/plugin-node-resolve": "^7.1.3",
     "ava": "^3.8.2",
+    "eslint": "^7.0.0",
     "husky": "^4.2.5",
     "rollup": "^2.10.2",
-    "xo": "^0.30.0"
+    "standard": "^14.3.4"
   },
   "dependencies": {
     "core-js": "^3.6.5"
@@ -36,19 +37,6 @@
   "browserslist": [
     "defaults"
   ],
-  "xo": {
-    "space": 2,
-    "semicolon": false,
-    "rules": {
-      "object-curly-spacing": [
-        "error",
-        "always"
-      ],
-      "import/extensions": [
-        "off"
-      ]
-    }
-  },
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
