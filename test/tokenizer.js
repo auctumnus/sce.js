@@ -3,7 +3,7 @@ const test = require('ava')
 const sce = require('../dist/scejs.cjs')
 
 test('puts text characters together', t => {
-  t.deepEqual(scejs.tokenizer.tokenize('aaa'), [new sce.tokenizer.Token('text', 'aaa')])
+  t.deepEqual(sce.tokenizer.tokenize('aaa'), [new sce.tokenizer.Token('text', 'aaa')])
 })
 
 test('recognizes all reserved characters', t => {
