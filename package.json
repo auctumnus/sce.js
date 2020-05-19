@@ -41,5 +41,6 @@
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
-  }
+  },
+  "unpkg": "dist/scejs.umd.js"
 }
