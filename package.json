@@ -7,6 +7,7 @@
   "bugs": {
     "url": "https://github.com/auctumnus/sce.js/issues"
   },
+  "sideEffects": false,
   "main": "dist/scejs.cjs.js",
   "module": "dist/scejs.esm.js",
   "browser": "dist/scejs.umd.js",
@@ -37,7 +38,8 @@
     "standard": "^14.3.4"
   },
   "dependencies": {
-    "core-js": "^3.6.5"
+    "core-js": "^3.6.5",
+    "rollup-plugin-uglify": "^6.0.4"
   },
   "browserslist": [
     "defaults"
