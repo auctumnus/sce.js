@@ -9,7 +9,6 @@ sce.js can be added to a Node-based project by running
 ```bash
 npm install sce
 ```
-Otherwise, you should be able to ``git clone`` the repository and require it as desired.
 It can also be used in non-Node browser-based projects through [unpkg](https://unpkg.com), as so:
 ```html
 <script src="unpkg.com/sce"></script>
@@ -17,4 +16,12 @@ It can also be used in non-Node browser-based projects through [unpkg](https://u
 See unpkg's documentation at the link above for more.
 
 ## usage
-have fun lol
+For projects using ES Module syntax for requiring packages (e.g. webpack), use the `import` syntax:
+```js
+import * as sce from 'sce'
+```
+
+Or, for usual Node syntax, just require():
+```js
+const sce = require('sce')
+```
