@@ -1,0 +1,166 @@
+(* A grammar of SCE. May not fully comprise SCE, but I sure hope it does! *)
+(* Based off the documentation at http://www.dragonlinguistics.com/sce/doc.html and some testing with the Python implementation. *)
+(* Thanks to everyone who sent me their SCE rulesets. *)
+
+(* Basic text *)
+(* Note that text_character can also contain digits *)
+text_character = ? any character matching /[^ >\/!+\-[\](){}*?\\"%<^,&_~@]/ ? ";
+escaped_special_character = "\\", ( ? any of the special characters above ? )
+
+whitespace = { " " };
+
+text = { text_character | escaped_special_character } ;
+
+digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+
+number = [ "-" ], { digit };
+
+(* Repetition and wildcards *)
+simple_wildcard = "*";
+extended_wildcard = simple_wildcard * 2;
+non_greedy_simple_wildcard = simple_wildcard, "?";
+non_greedy_extended_wildcard = extended_wildcard, "?";
+
+wildcard = simple_wildcard
+           | extended_wildcard
+           | non_greedy_simple_wildcard
+           | non_greedy_extended_wildcard;
+
+repetition = "{", ( number | simple_wildcard | non_greedy_simple_wildcard ), "}"
+
+(* Categories *)
+
+category_ref = "[", [ text ], "]";
+
+category_def_option_content = category_ref | text;
+
+category_def_option = category_def_option_content, ",", [ whitespace ];
+
+temporary_category = "[", { category_def_option }, "]";
+
+category_def_predicate = [ { category_def_option } ],
+                         category_def_option_content;
+
+category_def = text, 
+               [ whitespace ], "=", [ whitespace ], 
+               
+
+category_addition = text, 
+                    [ whitespace ], "+=", [ whitespace ], 
+                    category_def_predicate;
+category_removal = text, 
+                   [ whitespace ], "-=", [ whitespace ], 
+                   category_def_predicate;
+
+text_with_categories = { 
+                        text 
+                        | category_ref 
+                        | temporary_category 
+                        | "\"" 
+                        | repetition 
+                        | wildcard
+                       };
+
+(* Positions *)
+
+position_option = "|" + number;
+
+position = "@", number, [ { position_option } ];
+
+(* Target *)
+
+single_replacement_target = text_with_categories, [ position ];
+
+multiple_replacement_target_option = single_replacement_target, ",", [ whitespace ];
+
+multiple_replacement_target = [ { multiple_replacement_target_option } ], single_replacement_target;
+
+target = ( single_replacement_target 
+         | multiple_replacement_target ), [ whitespace ];
+
+(* Epenthesis *)
+
+epenthesis_option = text, [ position ], ",", [ whitespace ];
+
+epenthesis = "+", [ whitespace ], 
+                  [ { epenthesis_option } ], 
+                  text, [position], [ whitespace ];
+
+(* Deletion *)
+deletion = "-", [ whitespace ], target;
+
+(* Change *)
+
+non_target_content = { ( text_with_categories | "%" | "<" ) };
+
+multiple_change_option = change_content, ",", [ whitespace ];
+
+multiple_replacement_change = [ { multiple_change_option } ], change_content;
+
+change = ">", [ whitespace ], ( change_content | multiple_replacement_change );
+
+(* Environment *)
+
+simple_optional_sequence = "(", non_target_content, ")"
+non_greedy_optional_sequence = simple_optional_sequence, "?"
+optional_sequence = simple_optional_sequence | non_greedy_optional_sequence
+
+environment_content = { ( non_target_content | optional_sequence ) }
+
+local_before = environment_content, "_";
+local_after = "_", environment_content;
+local_in = environment_content, "_", environment_content;
+adjacent = "~", environment_content;
+
+local_environment = local_before | local_after | local_in | adjacent;
+
+global_env_comparison = "=" | ">" | "<" | "<=" | "=>"
+
+global_env_amount = "{", global_env_comparison, "}"
+
+global_environment = environment_content, [ position | global_env_amount ]
+
+local_or_global = local_environment | global_environment;
+
+environment_option = local_or_global, ",", [ whitespace ];
+
+environment_clause_content = { environment_option }, local_or_global;
+
+environment = "/", [ whitespace ], environment_clause_content, [ whitespace ];
+
+(* Exception *)
+exception = "!", [ whitespace ], environment_clause_content, [ whitespace ];
+
+(* Copy/move *)
+copy_move_content = environment_clause_content | position;
+copy = ">^", [ whitespace ], copy_move_content; 
+move = ">^?", [ whitespace ], copy_move_content;
+
+(* Flags *)
+binary_flag = "ignore" | "rtl";
+ternary_flag = [ "!" ], ( "ditto" | "stop" );
+numeric_flag = ( "repeat" | "persist" | "chance" ), ":", [ whitespace ], number;
+flag = binary_flag | ternary_flag | numeric_flag;
+
+flag_option = flag, ";", [ whitespace ];
+
+flag_list = [ { flag_option } ], flag;
+
+(* Metarules *)
+def = "def:", text;
+rule = "rule:", text;
+block = "block:", number;
+metarule = "!", ( def | rule | block ), [ whitespace, flag_list ];
+
+(* Rules *)
+predicate = ( change | copy | move ), [ environment ], [ exception ]
+rule = target, predicate, [ { predicate } ]
+
+(* Comments *)
+comment = "//", ? anything other than newline ?;
+
+(* Rulesets *)
+runnable = rule | metarule | category_def
+line = "" | comment | ( runnable, [ comment ] )
+
+ruleset = { line }
