@@ -154,7 +154,7 @@ metarule = "!", ( def | rule | block ), [ whitespace, flag_list ];
 
 (* Rules *)
 predicate = ( change | copy | move ), [ environment ], [ exception ]
-rule = target, predicate, [ { predicate } ]
+rule = target, predicate, [ { predicate } ], [ flag_list ]
 
 (* Comments *)
 comment = "//", ? anything other than newline ?;

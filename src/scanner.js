@@ -4,7 +4,7 @@
 /**
  * Characters which cannot be part of any text.
  */
-const specialCharacters = '^ >/!+-[](){}*?"%<^,&_~@\n'
+const specialCharacters = ';^ >/!+-[](){}*?"%<^,&_~@\n'
 
 export const tokenType = Object.freeze(Object.fromEntries([
   'text', 'number',
@@ -28,10 +28,13 @@ export const tokenType = Object.freeze(Object.fromEntries([
   'exclamation',
   'question',
   'plus', 'minus',
+  'comma',
+  'semicolon',
 
   'equals',
   'greaterThan', 'lessThan',
 
+  'newline',
   'eof'
 ].map((k, i) => [k, i])))
 
@@ -49,7 +52,9 @@ const simpleMap = {
   '@': 'at',
   '!': 'exclamation',
   '?': 'question',
-  '+': 'plus'
+  '+': 'plus',
+  ',': 'comma',
+  ';': 'semicolon'
 }
 
 /**
@@ -180,7 +185,7 @@ export class Scanner {
    * Returns true if this.match() would return true for a number.
    */
   matchNumber () {
-    return this.match(...'-0123456789'.split())
+    return this.match(...'-0123456789'.split(''))
   }
 
   /**
@@ -189,6 +194,7 @@ export class Scanner {
   number () {
     let value = this.source[this.current - 1]
     while (this.matchNumber() && !this.isAtEnd()) {
+      if(this.match('-')) break
       value += this.peek()
       this.advance()
     }
@@ -206,7 +212,9 @@ export class Scanner {
   text () {
     let value = this.source[this.current - 1]
     // check if the next character is reserved
-    while (!this.match(...specialCharacters.split('')) && !this.isAtEnd()) {
+    while (!this.match(...specialCharacters.split('')) 
+           && !this.isAtEnd()
+           && !this.matchNumber()) {
       if (this.match('\\')) {
         this.advance()
       }
@@ -235,6 +243,8 @@ export class Scanner {
     switch (char) {
       // special characters
       case '-': {
+        console.log(this.peek())
+        console.log(this.matchNumber())
         if (this.matchNumber()) {
           this.number()
         } else {
@@ -306,7 +316,7 @@ export class Scanner {
 
       // otherwise, treat the character as text
       default: {
-        if (this.matchNumber()) this.number()
+        if ('0123456789'.split('').includes(char)) this.number()
         else this.text()
         break
       }
