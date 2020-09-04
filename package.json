@@ -24,11 +24,8 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/cli": "^7.10.5",
-    "@commitlint/cli": "^10.0.0",
-    "@commitlint/config-conventional": "^10.0.0",
     "ava": "^3.12.1",
     "eslint": "^7.7.0",
-    "husky": "^4.2.5",
     "rollup-plugin-terser": "^7.0.0",
     "standard": "^14.3.4"
   },
@@ -45,10 +42,5 @@
   "browserslist": [
     "defaults"
   ],
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
-  },
   "unpkg": "dist/scejs.umd.js"
 }
