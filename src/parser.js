@@ -18,6 +18,12 @@ const nodeArray = [
   'categoryDefOptionContent', 'categoryDefPredicate',
   'categoryAddition', 'categorySubtraction',
 
+  'wildcard', 'extendedWildcard',
+  'nonGreedyWildcard', 'nonGreedyExtendedWildcard',
+
+  'numericRepetition',
+  'wildcardRepetition', 'nonGreedyWildcardRepetition',
+
   'flagList', 'binaryFlag', 'ternaryFlag', 'numericFlag'
 ]
 
@@ -384,22 +390,22 @@ export class Parser {
     return this.options(nodeType.flagList, flagFn, tokenType.semicolon)
   }
 
-  categoryAddition () {
+  categoryModification () {
     if(!this.expect('expected category name', tokenType.text)) return undefined
     const name = new Node(nodeType.categoryName, this.advance().content)
-    if(!this.expect('expected += sign', tokenType.catPlus)) return undefined
-    this.advance()
-    const predicate = this.categoryDefPredicate()
-    return new Tree(nodeType.categoryAddition, [name, predicate])
-  }
 
-  categorySubtraction () {
-    if(!this.expect('expected category name', tokenType.text)) return undefined
-    const name = new Node(nodeType.categoryName, this.advance().content)
-    if(!this.expect('expected -= sign', tokenType.catMinus)) return undefined
-    this.advance()
+    if(!this.expect('expected += or -=', tokenType.catPlus, 
+                                         tokenType.catMinus)) return undefined
+    const { type } = this.advance()
     const predicate = this.categoryDefPredicate()
-    return new Tree(nodeType.categorySubtraction, [name, predicate])
+    switch(type) {
+      case tokenType.catPlus: {
+        return new Tree(nodeType.categoryAddition, [name, predicate])
+      }
+      case tokenType.catMinus: {
+        return new Tree(nodeType.categorySubtraction, [name, predicate])
+      }
+    }
   }
 
   categoryDef () {
@@ -433,6 +439,57 @@ export class Parser {
   categoryDefPredicate () {
     const catFn = this.categoryDefOptionContent
     return this.options(nodeType.categoryDefPredicate, catFn, tokenType.comma)
+  }
+
+  wildcard () {
+    if(!this.expect('expected wildcard', tokenType.wildcard,
+                                         tokenType.extendedWildcard,
+                                         tokenType.nonGreedyWildcard,
+                                         tokenType.nonGreedyExtendedWildcard)) return undefined
+    switch(this.advance().type) {
+      case tokenType.wildcard: {
+        return new Node(nodeType.wildcard, '*')
+      }
+      case tokenType.extendedWildcard: {
+        return new Node(nodeType.extendedWildcard, '**')
+      }
+      case tokenType.nonGreedyWildcard: {
+        return new Node(nodeType.nonGreedyWildcard, '*?')
+      }
+      case tokenType.nonGreedyExtendedWildcard: {
+        return new Node(nodeType.nonGreedyExtendedWildcard, '**?')
+      }
+    }
+  }
+
+  repetition () {
+    if(!this.expect('expected wildcard repetition', tokenType.leftcurly)) return undefined
+    this.advance()
+
+    if(!this.expect('expected number, wildcard, or non-greedy wildcard',
+                    tokenType.wildcard, tokenType.nonGreedyWildcard, tokenType.number)) return undefined
+    const { type, content } = this.advance()
+
+    if(type === tokenType.number && content < 1) {
+      this.error('expected positive integer')
+      this.toLineEnd()
+      return undefined
+    }
+
+    if(!this.expect('expected closing brace', tokenType.rightcurly)) return undefined
+    this.advance()
+
+    switch(type) {
+      case tokenType.number: {
+        return new Node(nodeType.numericRepetition, content)
+      }
+      case tokenType.nonGreedyWildcard: {
+        return new Node(nodeType.nonGreedyWildcardRepetition, content)
+      }
+      case tokenType.wildcard: {
+        return new Node(nodeType.wildcardRepetition, content)
+      }
+    }
   }
 
   /**
