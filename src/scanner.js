@@ -6,7 +6,7 @@
  */
 const specialCharacters = ';^ >/!+-[](){}*?"%<^,&_~@\n'
 
-export const tokenType = Object.freeze(Object.fromEntries([
+const tokenArray = [
   'text', 'number',
 
   'leftparen', 'rightparen',
@@ -32,11 +32,14 @@ export const tokenType = Object.freeze(Object.fromEntries([
   'semicolon',
 
   'equals',
+  'catPlus', 'catMinus',
   'greaterThan', 'lessThan',
 
   'newline',
   'eof'
-].map((k, i) => [k, i])))
+]
+
+export const tokenType = Object.freeze(Object.fromEntries(tokenArray.map((k, i) => [k, i])))
 
 const simpleMap = {
   '(': 'leftparen',
@@ -52,9 +55,9 @@ const simpleMap = {
   '@': 'at',
   '!': 'exclamation',
   '?': 'question',
-  '+': 'plus',
   ',': 'comma',
-  ';': 'semicolon'
+  ';': 'semicolon',
+  '=': 'equals'
 }
 
 /**
@@ -71,8 +74,8 @@ export class Token {
     this.line = line
   }
 
-  toString () {
-    return `[line ${this.line}] [${tokenType[this.type]}] "${this.content}"`
+  get [Symbol.toStringTag]() {
+    return tokenArray[this.type]
   }
 }
 
@@ -243,12 +246,25 @@ export class Scanner {
     switch (char) {
       // special characters
       case '-': {
-        console.log(this.peek())
-        console.log(this.matchNumber())
         if (this.matchNumber()) {
           this.number()
         } else {
-          this.addToken(tokenType.minus, '-')
+          if(this.match('=')) {
+            this.advance()
+            this.addToken(tokenType.catMinus, '-=')
+          } else {
+            this.addToken(tokenType.minus, '-')
+          }
+        }
+        break
+      }
+
+      case '+': {
+        if(this.match('=')) {
+          this.advance()
+          this.addToken(tokenType.catPlus, '+=')
+        } else {
+          this.addToken(tokenType.plus)
         }
         break
       }

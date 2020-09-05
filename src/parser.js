@@ -2,20 +2,26 @@
 
 import { tokenType } from './scanner'
 
-export const nodeType = Object.freeze(Object.fromEntries([
+const nodeArray = [
   'ast',
 
   'line',
-  'rule', 'metarule', 'categoryDef',
+  'rule', 'metarule',
 
   'metaruleDef',
   'metaruleBlock',
   'metaruleRule',
 
+  'categoryDef',
+  'categoryRef',
   'categoryName',
+  'categoryDefOptionContent', 'categoryDefPredicate',
+  'categoryAddition', 'categorySubtraction',
 
   'flagList', 'binaryFlag', 'ternaryFlag', 'numericFlag'
-].map((k, i) => [k, i])))
+]
+
+export const nodeType = Object.freeze(Object.fromEntries(nodeArray.map((k, i) => [k, i])))
 
 /**
  * A tree is a node with children, as opposed to content. It can also store flags.
@@ -49,6 +55,10 @@ export class Tree {
   hasFlag (name) {
     return this.flags.includes(name)
   }
+
+  get [Symbol.toStringTag]() {
+    return nodeArray[this.type]
+  }
 }
 
 /**
@@ -65,6 +75,10 @@ export class Node {
     this.content = content
     this.isTree = false
     this.isNode = true
+  }
+
+  get [Symbol.toStringTag]() {
+    return nodeArray[this.type]
   }
 }
 
@@ -220,7 +234,6 @@ export class Parser {
     }
   }
 
-  // TODO: flags
   metaruleDef () {
     const content = this.advance().content.split(':')[1]
     if(!content) {
@@ -278,7 +291,7 @@ export class Parser {
     return tree
   }
 
-  binary_flag () {
+  binaryFlag () {
     if(!this.expect('expected flag', tokenType.text)) return undefined
     const content = this.advance().content
     if(content == 'ignore' || content == 'rtl') {
@@ -290,7 +303,7 @@ export class Parser {
     }
   }
 
-  ternary_flag () {
+  ternaryFlag () {
     if(!this.expect('expected flag', tokenType.exclamation, 
                                      tokenType.text)) return undefined
     let content = ''
@@ -310,7 +323,7 @@ export class Parser {
     }
   }
 
-  numeric_flag () {
+  numericFlag () {
     if(!this.expect('expected flag', tokenType.text)) return undefined
     let flag = this.advance().content
     if(flag === 'repeat:' || flag === 'persist:' || flag === 'chance:') {
@@ -341,17 +354,17 @@ export class Parser {
 
   flag () {
     if(this.match(tokenType.exclamation)) {
-      return this.ternary_flag()
+      return this.ternaryFlag()
     } else if(this.match(tokenType.text)) {
       switch(this.peek().content) {
         case 'ignore': case 'rtl': {
-          return this.binary_flag()
+          return this.binaryFlag()
         }
         case 'ditto': case 'stop': {
-          return this.ternary_flag()
+          return this.ternaryFlag()
         }
         case 'repeat:': case 'persist:': case 'chance:': {
-          return this.numeric_flag()
+          return this.numericFlag()
         }
         default: {
           this.error('expected flag')
@@ -367,16 +380,59 @@ export class Parser {
   }
 
   flag_list () {
-    let flagFn = this.flag
+    const flagFn = this.flag
     return this.options(nodeType.flagList, flagFn, tokenType.semicolon)
   }
 
-  /**
-   * Parses a category definition.
-   * @returns {Tree} The AST branch for the category definition.
-   */
-  categoryDef () {
+  categoryAddition () {
+    if(!this.expect('expected category name', tokenType.text)) return undefined
+    const name = new Node(nodeType.categoryName, this.advance().content)
+    if(!this.expect('expected += sign', tokenType.catPlus)) return undefined
     this.advance()
+    const predicate = this.categoryDefPredicate()
+    return new Tree(nodeType.categoryAddition, [name, predicate])
+  }
+
+  categorySubtraction () {
+    if(!this.expect('expected category name', tokenType.text)) return undefined
+    const name = new Node(nodeType.categoryName, this.advance().content)
+    if(!this.expect('expected -= sign', tokenType.catMinus)) return undefined
+    this.advance()
+    const predicate = this.categoryDefPredicate()
+    return new Tree(nodeType.categorySubtraction, [name, predicate])
+  }
+
+  categoryDef () {
+    if(!this.expect('expected new category name', tokenType.text)) return undefined
+    const name = new Node(nodeType.categoryName, this.advance().content)
+    if(!this.expect('expected equals sign', tokenType.equals)) return undefined
+    this.advance()
+    const predicate = this.categoryDefPredicate()
+    return new Tree(nodeType.categoryDef, [name, predicate])
+  }
+
+  categoryRef () {
+    if(!this.expect('expected opening brace', tokenType.leftbrace)) return undefined
+    this.advance()
+    if(!this.expect('expected category name', tokenType.text)) return undefined
+    let name = this.advance().content
+    if(!this.expect('expected closing brace', tokenType.rightbrace)) return undefined
+    this.advance()
+    return new Node(nodeType.categoryRef, name)
+  }
+  
+  categoryDefOptionContent () {
+    if(!this.expect('expected category def option content', tokenType.leftbrace, tokenType.text)) return undefined
+    if(this.match(tokenType.text)) {
+      return new Node(nodeType.categoryDefOptionContent, this.advance().content)
+    } else if(this.match(tokenType.leftbrace)) {
+      return this.categoryRef()
+    }
+  }
+
+  categoryDefPredicate () {
+    const catFn = this.categoryDefOptionContent
+    return this.options(nodeType.categoryDefPredicate, catFn, tokenType.comma)
   }
 
   /**

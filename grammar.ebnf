@@ -36,10 +36,10 @@ category_def_option_content = category_ref | text;
 
 category_def_option = category_def_option_content, ",", [ whitespace ];
 
-temporary_category = "[", { category_def_option }, "]";
-
 category_def_predicate = [ { category_def_option } ],
                          category_def_option_content;
+
+temporary_category = "[", category_def_predicate, "]";
 
 category_def = text, 
                [ whitespace ], "=", [ whitespace ], 
@@ -48,7 +48,7 @@ category_def = text,
 category_addition = text, 
                     [ whitespace ], "+=", [ whitespace ], 
                     category_def_predicate;
-category_removal = text, 
+category_subtraction = text, 
                    [ whitespace ], "-=", [ whitespace ], 
                    category_def_predicate;
 
