@@ -75,7 +75,7 @@ export class Token {
     this.line = line
   }
 
-  get [Symbol.toStringTag]() {
+  get [Symbol.toStringTag] () {
     return tokenArray[this.type]
   }
 }
@@ -198,7 +198,7 @@ export class Scanner {
   number () {
     let value = this.source[this.current - 1]
     while (this.matchNumber() && !this.isAtEnd()) {
-      if(this.match('-')) break
+      if (this.match('-')) break
       value += this.peek()
       this.advance()
     }
@@ -216,9 +216,9 @@ export class Scanner {
   text () {
     let value = this.source[this.current - 1]
     // check if the next character is reserved
-    while (!this.match(...specialCharacters.split('')) 
-           && !this.isAtEnd()
-           && !this.matchNumber()) {
+    while (!this.match(...specialCharacters.split('')) &&
+           !this.isAtEnd() &&
+           !this.matchNumber()) {
       if (this.match('\\')) {
         this.advance()
       }
@@ -250,7 +250,7 @@ export class Scanner {
         if (this.matchNumber()) {
           this.number()
         } else {
-          if(this.match('=')) {
+          if (this.match('=')) {
             this.advance()
             this.addToken(tokenType.catMinus, '-=')
           } else {
@@ -261,7 +261,7 @@ export class Scanner {
       }
 
       case '+': {
-        if(this.match('=')) {
+        if (this.match('=')) {
           this.advance()
           this.addToken(tokenType.catPlus, '+=')
         } else {

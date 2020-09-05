@@ -71,7 +71,7 @@ export class Tree {
     return this.flags.includes(name)
   }
 
-  get [Symbol.toStringTag]() {
+  get [Symbol.toStringTag] () {
     return nodeArray[this.type]
   }
 }
@@ -79,7 +79,7 @@ export class Tree {
 /**
  * A node has a type and content, but not children.
  * @typedef {Object} Node
- * @property {Number} type The type of node this is. 
+ * @property {Number} type The type of node this is.
  * @property {String|Object} content The content of the node.
  * @property {Boolean} isTree Whether the object is a tree. Always false.
  * @property {Boolean} isNode Whether the object is a node. Always true.
@@ -92,7 +92,7 @@ export class Node {
     this.isNode = true
   }
 
-  get [Symbol.toStringTag]() {
+  get [Symbol.toStringTag] () {
     return nodeArray[this.type]
   }
 }
@@ -165,8 +165,8 @@ export class Parser {
    */
   matchAhead (...types) {
     if (this.isAtEnd()) return false
-    return this.tokens[this.current + 1]
-           && types.includes(this.tokens[this.current + 1].type)
+    return this.tokens[this.current + 1] &&
+           types.includes(this.tokens[this.current + 1].type)
   }
 
   /**
@@ -177,7 +177,7 @@ export class Parser {
    */
   expect (message, ...names) {
     const result = this.match(...names)
-    if(result) {
+    if (result) {
       return true
     } else {
       this.error(message)
@@ -196,8 +196,8 @@ export class Parser {
    * Skips until it finds a newline or EOF.
    */
   toLineEnd () {
-    while (!this.match(tokenType.newline) 
-           && !this.match(tokenType.eof)) this.advance()
+    while (!this.match(tokenType.newline) &&
+           !this.match(tokenType.eof)) this.advance()
   }
 
   /**
@@ -221,10 +221,10 @@ export class Parser {
    */
   line () {
     // metarule
-    if(this.match(tokenType.exclamation)) {
+    if (this.match(tokenType.exclamation)) {
       return this.metarule()
     // category definition
-    } else if(this.matchAhead(tokenType.equals)) {
+    } else if (this.matchAhead(tokenType.equals)) {
       return this.categoryDef()
     // rule
     } else {
@@ -234,24 +234,24 @@ export class Parser {
 
   metarule () {
     this.advance() // past the !
-    if(!this.expect('expected metarule', tokenType.text)) return undefined
-    if(!this.peek().content.startsWith('def:')
-    && !this.peek().content.startsWith('rule:')
-    && !this.peek().content.startsWith('block:')) {
+    if (!this.expect('expected metarule', tokenType.text)) return undefined
+    if (!this.peek().content.startsWith('def:') &&
+    !this.peek().content.startsWith('rule:') &&
+    !this.peek().content.startsWith('block:')) {
       this.error('expected one of "def", "rule", or "block"')
       this.toLineEnd()
       return undefined
     }
-    switch(this.peek().content.split(':')[0]) {
-      case 'def':   return this.metaruleDef()
-      case 'rule':  return this.metaruleRule()
+    switch (this.peek().content.split(':')[0]) {
+      case 'def': return this.metaruleDef()
+      case 'rule': return this.metaruleRule()
       case 'block': return this.metaruleBlock()
     }
   }
 
   metaruleDef () {
     const content = this.advance().content.split(':')[1]
-    if(!content) {
+    if (!content) {
       this.error('expected a name for def')
       this.toLineEnd()
       return undefined
@@ -261,13 +261,13 @@ export class Parser {
 
   metaruleBlock () {
     const content = this.advance().content.split(':')[1]
-    if(!content) {
+    if (!content) {
       this.error('expected a number for block')
       this.toLineEnd()
       return undefined
     }
     // isInteger checks both NaN and integer-ness, so no isNaN call is needed
-    if(!Number.isInteger(Number(content)) || Number(content) < 1) {
+    if (!Number.isInteger(Number(content)) || Number(content) < 1) {
       this.error('expected a positive integer for block')
       this.toLineEnd()
       return undefined
@@ -277,7 +277,7 @@ export class Parser {
 
   metaruleRule () {
     const content = this.advance().content.split(':')[1]
-    if(!content) {
+    if (!content) {
       this.error('expected a name for rule')
       this.toLineEnd()
       return undefined
@@ -293,11 +293,11 @@ export class Parser {
    */
   options (type, fn, separator = tokenType.comma) {
     const tree = new Tree(type)
-    while(1) {
+    while (1) {
       // have to bind this - for some reason, the called function otherwise
       // loses context and this becomes undefined ???
       tree.children.push(fn.bind(this)())
-      if(!this.match(separator)) {
+      if (!this.match(separator)) {
         break
       } else {
         this.advance()
@@ -307,9 +307,9 @@ export class Parser {
   }
 
   binaryFlag () {
-    if(!this.expect('expected flag', tokenType.text)) return undefined
+    if (!this.expect('expected flag', tokenType.text)) return undefined
     const content = this.advance().content
-    if(content == 'ignore' || content == 'rtl') {
+    if (content === 'ignore' || content === 'rtl') {
       return new Node(nodeType.binaryFlag, content)
     } else {
       this.error('expected one of "ignore" or "rtl"')
@@ -319,17 +319,17 @@ export class Parser {
   }
 
   ternaryFlag () {
-    if(!this.expect('expected flag', tokenType.exclamation, 
-                                     tokenType.text)) return undefined
+    if (!this.expect('expected flag', tokenType.exclamation,
+      tokenType.text)) return undefined
     let content = ''
-    if(this.match(tokenType.exclamation)) {
+    if (this.match(tokenType.exclamation)) {
       content += '!'
       this.advance()
     }
-    if(!this.expect('expected one of "ditto" or "stop"', tokenType.text)) return undefined
+    if (!this.expect('expected one of "ditto" or "stop"', tokenType.text)) return undefined
 
-    let textContent = this.advance().content
-    if(textContent === 'ditto' || textContent === 'stop') {
+    const textContent = this.advance().content
+    if (textContent === 'ditto' || textContent === 'stop') {
       return new Node(nodeType.ternaryFlag, content + textContent)
     } else {
       this.error('expected one of "ditto" or "stop"')
@@ -339,27 +339,27 @@ export class Parser {
   }
 
   numericFlag () {
-    if(!this.expect('expected flag', tokenType.text)) return undefined
+    if (!this.expect('expected flag', tokenType.text)) return undefined
     let flag = this.advance().content
-    if(flag === 'repeat:' || flag === 'persist:' || flag === 'chance:') {
+    if (flag === 'repeat:' || flag === 'persist:' || flag === 'chance:') {
       // remove colon at end
       flag = flag.slice(0, flag.length - 1)
-      if(!this.expect('expected number', tokenType.number)) return undefined
-      let number = this.advance().content
-      // according to SCE docs, repeat and persist have a max of 1000 and a 
+      if (!this.expect('expected number', tokenType.number)) return undefined
+      const number = this.advance().content
+      // according to SCE docs, repeat and persist have a max of 1000 and a
       // minimum of 1
-      if((flag !== 'chance') && (number < 1 || number > 1000)) {
+      if ((flag !== 'chance') && (number < 1 || number > 1000)) {
         this.error('number must be between 1 and 1000')
         this.toLineEnd()
         return undefined
       }
       // chance has a lower max value at 100 (for 100%)
-      if((flag === 'chance') && (number < 1 || number > 100)) {
+      if ((flag === 'chance') && (number < 1 || number > 100)) {
         this.error('number must be between 1 and 100')
         this.toLineEnd()
         return undefined
       }
-      return new Node(nodeType.numericFlag, {flag, number})
+      return new Node(nodeType.numericFlag, { flag, number })
     } else {
       this.error('expected one of "repeat" or "persist" or "chance"')
       this.toLineEnd()
@@ -368,10 +368,10 @@ export class Parser {
   }
 
   flag () {
-    if(this.match(tokenType.exclamation)) {
+    if (this.match(tokenType.exclamation)) {
       return this.ternaryFlag()
-    } else if(this.match(tokenType.text)) {
-      switch(this.peek().content) {
+    } else if (this.match(tokenType.text)) {
+      switch (this.peek().content) {
         case 'ignore': case 'rtl': {
           return this.binaryFlag()
         }
@@ -394,20 +394,20 @@ export class Parser {
     }
   }
 
-  flag_list () {
+  flagList () {
     const flagFn = this.flag
     return this.options(nodeType.flagList, flagFn, tokenType.semicolon)
   }
 
   categoryModification () {
-    if(!this.expect('expected category name', tokenType.text)) return undefined
+    if (!this.expect('expected category name', tokenType.text)) return undefined
     const name = new Node(nodeType.categoryName, this.advance().content)
 
-    if(!this.expect('expected += or -=', tokenType.catPlus, 
-                                         tokenType.catMinus)) return undefined
+    if (!this.expect('expected += or -=', tokenType.catPlus,
+      tokenType.catMinus)) return undefined
     const { type } = this.advance()
     const predicate = this.categoryDefPredicate()
-    switch(type) {
+    switch (type) {
       case tokenType.catPlus: {
         return new Tree(nodeType.categoryAddition, [name, predicate])
       }
@@ -418,29 +418,29 @@ export class Parser {
   }
 
   categoryDef () {
-    if(!this.expect('expected new category name', tokenType.text)) return undefined
+    if (!this.expect('expected new category name', tokenType.text)) return undefined
     const name = new Node(nodeType.categoryName, this.advance().content)
-    if(!this.expect('expected equals sign', tokenType.equals)) return undefined
+    if (!this.expect('expected equals sign', tokenType.equals)) return undefined
     this.advance()
     const predicate = this.categoryDefPredicate()
     return new Tree(nodeType.categoryDef, [name, predicate])
   }
 
   categoryRef () {
-    if(!this.expect('expected opening brace', tokenType.leftbrace)) return undefined
+    if (!this.expect('expected opening brace', tokenType.leftbrace)) return undefined
     this.advance()
-    if(!this.expect('expected category name', tokenType.text)) return undefined
-    let name = this.advance().content
-    if(!this.expect('expected closing brace', tokenType.rightbrace)) return undefined
+    if (!this.expect('expected category name', tokenType.text)) return undefined
+    const name = this.advance().content
+    if (!this.expect('expected closing brace', tokenType.rightbrace)) return undefined
     this.advance()
     return new Node(nodeType.categoryRef, name)
   }
-  
+
   categoryDefOptionContent () {
-    if(!this.expect('expected category def option content', tokenType.leftbrace, tokenType.text)) return undefined
-    if(this.match(tokenType.text)) {
+    if (!this.expect('expected category def option content', tokenType.leftbrace, tokenType.text)) return undefined
+    if (this.match(tokenType.text)) {
       return new Node(nodeType.categoryDefOptionContent, this.advance().content)
-    } else if(this.match(tokenType.leftbrace)) {
+    } else if (this.match(tokenType.leftbrace)) {
       return this.categoryRef()
     }
   }
@@ -451,22 +451,22 @@ export class Parser {
   }
 
   temporaryCategory () {
-    if(!this.expect('expected opening brace', tokenType.leftbrace)) return undefined
+    if (!this.expect('expected opening brace', tokenType.leftbrace)) return undefined
     this.advance()
-    if(!this.expect('expected temporary category content', tokenType.text)) return undefined
-    let predicate = this.categoryDefPredicate()
-    if(!this.expect('expected closing brace', tokenType.rightbrace)) return undefined
+    if (!this.expect('expected temporary category content', tokenType.text)) return undefined
+    const predicate = this.categoryDefPredicate()
+    if (!this.expect('expected closing brace', tokenType.rightbrace)) return undefined
     this.advance()
-    if(!predicate) return undefined
+    if (!predicate) return undefined
     return new Tree(nodeType.temporaryCategory, predicate.children)
   }
 
   wildcard () {
-    if(!this.expect('expected wildcard', tokenType.wildcard,
-                                         tokenType.extendedWildcard,
-                                         tokenType.nonGreedyWildcard,
-                                         tokenType.nonGreedyExtendedWildcard)) return undefined
-    switch(this.advance().type) {
+    if (!this.expect('expected wildcard', tokenType.wildcard,
+      tokenType.extendedWildcard,
+      tokenType.nonGreedyWildcard,
+      tokenType.nonGreedyExtendedWildcard)) return undefined
+    switch (this.advance().type) {
       case tokenType.wildcard: {
         return new Node(nodeType.wildcard, '*')
       }
@@ -483,23 +483,23 @@ export class Parser {
   }
 
   repetition () {
-    if(!this.expect('expected wildcard repetition', tokenType.leftcurly)) return undefined
+    if (!this.expect('expected wildcard repetition', tokenType.leftcurly)) return undefined
     this.advance()
 
-    if(!this.expect('expected number, wildcard, or non-greedy wildcard',
-                    tokenType.wildcard, tokenType.nonGreedyWildcard, tokenType.number)) return undefined
+    if (!this.expect('expected number, wildcard, or non-greedy wildcard',
+      tokenType.wildcard, tokenType.nonGreedyWildcard, tokenType.number)) return undefined
     const { type, content } = this.advance()
 
-    if(type === tokenType.number && content < 1) {
+    if (type === tokenType.number && content < 1) {
       this.error('expected positive integer')
       this.toLineEnd()
       return undefined
     }
 
-    if(!this.expect('expected closing brace', tokenType.rightcurly)) return undefined
+    if (!this.expect('expected closing brace', tokenType.rightcurly)) return undefined
     this.advance()
 
-    switch(type) {
+    switch (type) {
       case tokenType.number: {
         return new Node(nodeType.numericRepetition, content)
       }
@@ -514,20 +514,20 @@ export class Parser {
 
   textWithCategories () {
     const acceptedTokens = [
-      tokenType.text, 
-      tokenType.leftcurly, 
+      tokenType.text,
+      tokenType.leftcurly,
       tokenType.leftbrace,
       tokenType.wildcard, tokenType.extendedWildcard,
       tokenType.nonGreedyWildcard, tokenType.nonGreedyExtendedWildcard,
       tokenType.quote,
       tokenType.number, tokenType.semicolon, tokenType.bar
     ]
-    if(!this.expect('expected target text', ...acceptedTokens)) return undefined
-    let pattern = new Tree(nodeType.textWithCategories)
-    while(this.match(...acceptedTokens)) {
+    if (!this.expect('expected target text', ...acceptedTokens)) return undefined
+    const pattern = new Tree(nodeType.textWithCategories)
+    while (this.match(...acceptedTokens)) {
       const { type, content } = this.peek()
-      switch(type) {
-        case tokenType.semicolon: 
+      switch (type) {
+        case tokenType.semicolon:
         case tokenType.bar:
         case tokenType.text: {
           pattern.children.push(new Node(nodeType.text, content))
@@ -549,7 +549,7 @@ export class Parser {
           break
         }
         case tokenType.leftbrace: {
-          if(this.tokens[this.current + 2] && 
+          if (this.tokens[this.current + 2] &&
              this.tokens[this.current + 2].type === tokenType.comma) {
             pattern.children.push(this.temporaryCategory())
           } else {
@@ -557,7 +557,7 @@ export class Parser {
           }
           break
         }
-        case tokenType.wildcard: 
+        case tokenType.wildcard:
         case tokenType.extendedWildcard:
         case tokenType.nonGreedyWildcard:
         case tokenType.nonGreedyExtendedWildcard: {
@@ -570,20 +570,21 @@ export class Parser {
   }
 
   positionNumber () {
-    if(!this.expect('expected number', tokenType.number)) return undefined
+    if (!this.expect('expected number', tokenType.number)) return undefined
     return new Node(nodeType.positionNumber, this.advance().content)
   }
+
   position () {
-    if(!this.expect('expected position', tokenType.at)) return undefined
+    if (!this.expect('expected position', tokenType.at)) return undefined
     this.advance()
-    if(!this.expect('expected number', tokenType.number)) return undefined
+    if (!this.expect('expected number', tokenType.number)) return undefined
     const numberfn = this.positionNumber
     return this.options(nodeType.position, numberfn, tokenType.bar)
   }
 
   singleReplacementTarget () {
     const children = [this.textWithCategories()]
-    if(this.match(tokenType.at)) {
+    if (this.match(tokenType.at)) {
       children.push(this.position())
     }
     return new Tree(nodeType.singleReplacementTarget, children)
@@ -595,8 +596,8 @@ export class Parser {
   }
 
   target () {
-    let target = this.multipleReplacementTarget()
-    if(target.children.length === 1) {
+    const target = this.multipleReplacementTarget()
+    if (target.children.length === 1) {
       return target.children[0]
     } else {
       return target
