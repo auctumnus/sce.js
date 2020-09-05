@@ -4,7 +4,7 @@
 /**
  * Characters which cannot be part of any text.
  */
-const specialCharacters = ';^ >/!+-[](){}*?"%<^,&_~@\n'
+const specialCharacters = ';^ >/!+-[](){}*?"%<^,&_~@\n|'
 
 const tokenArray = [
   'text', 'number',
@@ -29,7 +29,7 @@ const tokenArray = [
   'question',
   'plus', 'minus',
   'comma',
-  'semicolon',
+  'semicolon', 'bar',
 
   'equals',
   'catPlus', 'catMinus',
@@ -57,7 +57,8 @@ const simpleMap = {
   '?': 'question',
   ',': 'comma',
   ';': 'semicolon',
-  '=': 'equals'
+  '=': 'equals',
+  '|': 'bar'
 }
 
 /**

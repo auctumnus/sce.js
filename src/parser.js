@@ -12,7 +12,7 @@ const nodeArray = [
   'metaruleBlock',
   'metaruleRule',
 
-  'categoryDef',
+  'categoryDef', 'temporaryCategory',
   'categoryRef',
   'categoryName',
   'categoryDefOptionContent', 'categoryDefPredicate',
@@ -23,6 +23,15 @@ const nodeArray = [
 
   'numericRepetition',
   'wildcardRepetition', 'nonGreedyWildcardRepetition',
+
+  'textWithCategories',
+  'text',
+  'ditto',
+
+  'positionNumber',
+  'position',
+
+  'singleReplacementTarget', 'multipleReplacementTarget', 'target',
 
   'flagList', 'binaryFlag', 'ternaryFlag', 'numericFlag'
 ]
@@ -441,6 +450,17 @@ export class Parser {
     return this.options(nodeType.categoryDefPredicate, catFn, tokenType.comma)
   }
 
+  temporaryCategory () {
+    if(!this.expect('expected opening brace', tokenType.leftbrace)) return undefined
+    this.advance()
+    if(!this.expect('expected temporary category content', tokenType.text)) return undefined
+    let predicate = this.categoryDefPredicate()
+    if(!this.expect('expected closing brace', tokenType.rightbrace)) return undefined
+    this.advance()
+    if(!predicate) return undefined
+    return new Tree(nodeType.temporaryCategory, predicate.children)
+  }
+
   wildcard () {
     if(!this.expect('expected wildcard', tokenType.wildcard,
                                          tokenType.extendedWildcard,
@@ -489,6 +509,97 @@ export class Parser {
       case tokenType.wildcard: {
         return new Node(nodeType.wildcardRepetition, content)
       }
+    }
+  }
+
+  textWithCategories () {
+    const acceptedTokens = [
+      tokenType.text, 
+      tokenType.leftcurly, 
+      tokenType.leftbrace,
+      tokenType.wildcard, tokenType.extendedWildcard,
+      tokenType.nonGreedyWildcard, tokenType.nonGreedyExtendedWildcard,
+      tokenType.quote,
+      tokenType.number, tokenType.semicolon, tokenType.bar
+    ]
+    if(!this.expect('expected target text', ...acceptedTokens)) return undefined
+    let pattern = new Tree(nodeType.textWithCategories)
+    while(this.match(...acceptedTokens)) {
+      const { type, content } = this.peek()
+      switch(type) {
+        case tokenType.semicolon: 
+        case tokenType.bar:
+        case tokenType.text: {
+          pattern.children.push(new Node(nodeType.text, content))
+          this.advance()
+          break
+        }
+        case tokenType.number: {
+          pattern.children.push(new Node(nodeType.text, content + ''))
+          this.advance()
+          break
+        }
+        case tokenType.quote: {
+          pattern.children.push(new Node(nodeType.ditto, content))
+          this.advance()
+          break
+        }
+        case tokenType.leftcurly: {
+          pattern.children.push(this.repetition())
+          break
+        }
+        case tokenType.leftbrace: {
+          if(this.tokens[this.current + 2] && 
+             this.tokens[this.current + 2].type === tokenType.comma) {
+            pattern.children.push(this.temporaryCategory())
+          } else {
+            pattern.children.push(this.categoryRef())
+          }
+          break
+        }
+        case tokenType.wildcard: 
+        case tokenType.extendedWildcard:
+        case tokenType.nonGreedyWildcard:
+        case tokenType.nonGreedyExtendedWildcard: {
+          pattern.children.push(this.wildcard())
+          break
+        }
+      }
+    }
+    return pattern
+  }
+
+  positionNumber () {
+    if(!this.expect('expected number', tokenType.number)) return undefined
+    return new Node(nodeType.positionNumber, this.advance().content)
+  }
+  position () {
+    if(!this.expect('expected position', tokenType.at)) return undefined
+    this.advance()
+    if(!this.expect('expected number', tokenType.number)) return undefined
+    const numberfn = this.positionNumber
+    return this.options(nodeType.position, numberfn, tokenType.bar)
+  }
+
+  singleReplacementTarget () {
+    const children = [this.textWithCategories()]
+    if(this.match(tokenType.at)) {
+      children.push(this.position())
+    }
+    return new Tree(nodeType.singleReplacementTarget, children)
+  }
+
+  multipleReplacementTarget () {
+    const singlefn = this.singleReplacementTarget
+    return this.options(nodeType.multipleReplacementTarget, singlefn)
+  }
+
+  target () {
+    let target = this.multipleReplacementTarget()
+    if(target.children.length === 1) {
+      return target.children[0]
+    } else {
+      return target
     }
   }
 
