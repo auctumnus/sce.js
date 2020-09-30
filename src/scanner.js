@@ -4,7 +4,7 @@
 /**
  * Characters which cannot be part of any text.
  */
-const specialCharacters = ';^ >/!+-[](){}*?"%<^,&_~@\n|'
+const specialCharacters = ';^ >/!+-[](){}=*?"%<^,&_~@\n|'
 
 const tokenArray = [
   'text', 'number',
@@ -80,11 +80,20 @@ export class Token {
   }
 }
 
+/**
+ * A function which errors will be reported to. This defaults to console.error - if left unchanged, the error will be reported in a more human-friendly format.
+ * @typedef {Function} Logger
+ * @param {Object} error
+ * @param {String} error.message A string describing the error.
+ * @param {Number} error.line The line at which the error occurred.
+ */
+
+
 export class Scanner {
   /**
    * Creates a new Scanner to step through the input string source.
    * @param {String} source The input source for the SCE ruleset.
-   * @param {Function} logger The function to pass errors to. If none is given, the default is console.error. If a function is provided, the errors will provided as an object matching {line: (line), message: (message)}.
+   * @param {Logger} logger The function to pass errors to. If none is given, the default is console.error. If a function is provided, the errors will provided as an object matching {line: (line), message: (message)}.
    */
   constructor (source, logger = console.error) {
     this.source = source
@@ -339,4 +348,13 @@ export class Scanner {
       }
     }
   }
+}
+
+/**
+ * Wrapper function for the scanner. Turns a string into an array of tokens.
+ * @param {String} text The text to turn into tokens.
+ * @param {Logger} logger The logger to report errors to.
+ */
+export const scan = (text, logger=console.error) => {
+  return new Scanner(text, logger).scanTokens()
 }
