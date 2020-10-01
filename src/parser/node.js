@@ -22,12 +22,15 @@ const nodeArray = [
 
   'textWithCategories',
   'text',
-  'ditto',
+  'ditto', 'targetRef', 'reverseTargetRef',
 
   'positionNumber',
   'position',
 
   'singleReplacementTarget', 'multipleReplacementTarget', 'target',
+
+  'nonTargetContent',
+  'singleReplacementChange', 'multipleReplacementChange', 'change',
 
   'flagList', 'binaryFlag', 'ternaryFlag', 'numericFlag'
 ]

@@ -284,7 +284,7 @@ export class Scanner {
           this.advance()
           this.addToken(tokenType.lessThan, '<=')
         } else {
-          this.addToken(tokenType.leftangle)
+          this.addToken(tokenType.leftangle, '<')
         }
         break
       }
@@ -304,7 +304,7 @@ export class Scanner {
               this.addToken(tokenType.copy, '>^')
             }
           } else { // >
-            this.addToken(tokenType.angleright, '>')
+            this.addToken(tokenType.rightangle, '>')
           }
         }
         break

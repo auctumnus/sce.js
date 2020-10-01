@@ -93,11 +93,11 @@ deletion = "-", [ whitespace ], target;
 
 non_target_content = { ( text_with_categories | "%" | "<" ) };
 
-multiple_change_option = change_content, ",", [ whitespace ];
+multiple_change_option = non_target_content, ",", [ whitespace ];
 
-multiple_replacement_change = [ { multiple_change_option } ], change_content;
+multiple_replacement_change = [ { multiple_change_option } ], non_target_content;
 
-change = ">", [ whitespace ], ( change_content | multiple_replacement_change );
+change = ">", [ whitespace ], ( non_target_content | multiple_replacement_change );
 
 (* Environment *)
 

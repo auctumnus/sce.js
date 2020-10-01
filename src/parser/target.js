@@ -5,61 +5,55 @@ import { wildcard } from './wildcard'
 import { position } from './position'
 import { repetition } from './repetition'
 import { temporaryCategory, categoryRef } from './categories'
+import { clauseContent } from './clauseContent'
+
+const text = (parser, pattern, content) => {
+  pattern.children.push(new Node(nodeType.text, content))
+  parser.advance()
+}
+
+const runWildcard = (parser, pattern) => pattern.children.push(wildcard(parser))
+
+export const textWithCategoriesConfig = {
+  [tokenType.text]: text,
+  [tokenType.bar]: text,
+  [tokenType.semicolon]: text,
+
+  [tokenType.number]: (parser, pattern, content) => {
+    pattern.children.push(new Node(nodeType.text, content + ''))
+    parser.advance()
+  },
+
+  [tokenType.quote]: (parser, pattern, content) => {
+    pattern.children.push(new Node(nodeType.ditto, content))
+    parser.advance()
+  },
+
+  [tokenType.leftcurly]: (parser, pattern) => {
+    pattern.children.push(repetition(parser))
+  },
+
+  [tokenType.leftbrace]: (parser, pattern) => {
+    if (parser.matchAhead(tokenType.comma)) {
+      pattern.children.push(temporaryCategory(parser))
+    } else if(parser.matchAhead(tokenType.rightbrace)) {
+      // empty category
+      pattern.children.push(new Tree(nodeType.temporaryCategory))
+      parser.advance()
+      parser.advance()
+    } else {
+      pattern.children.push(categoryRef(parser))
+    }
+  },
+
+  [tokenType.wildcard]: runWildcard,
+  [tokenType.extendedWildcard]: runWildcard,
+  [tokenType.nonGreedyWildcard]: runWildcard,
+  [tokenType.nonGreedyExtendedWildcard]: runWildcard
+}
 
 export const textWithCategories = parser => {
-  const acceptedTokens = [
-    tokenType.text,
-    tokenType.leftcurly,
-    tokenType.leftbrace,
-    tokenType.wildcard, tokenType.extendedWildcard,
-    tokenType.nonGreedyWildcard, tokenType.nonGreedyExtendedWildcard,
-    tokenType.quote,
-    tokenType.number, tokenType.semicolon, tokenType.bar
-  ]
-  if (!parser.expect('expected target text', ...acceptedTokens)) return undefined
-  const pattern = new Tree(nodeType.textWithCategories)
-  while (parser.match(...acceptedTokens)) {
-    const { type, content } = parser.peek()
-    switch (type) {
-      case tokenType.semicolon:
-      case tokenType.bar:
-      case tokenType.text: {
-        pattern.children.push(new Node(nodeType.text, content))
-        parser.advance()
-        break
-      }
-      case tokenType.number: {
-        pattern.children.push(new Node(nodeType.text, content + ''))
-        parser.advance()
-        break
-      }
-      case tokenType.quote: {
-        pattern.children.push(new Node(nodeType.ditto, content))
-        parser.advance()
-        break
-      }
-      case tokenType.leftcurly: {
-        pattern.children.push(repetition(parser))
-        break
-      }
-      case tokenType.leftbrace: {
-        if (parser.matchAhead(tokenType.comma)) {
-          pattern.children.push(temporaryCategory(parser))
-        } else {
-          pattern.children.push(categoryRef(parser))
-        }
-        break
-      }
-      case tokenType.wildcard:
-      case tokenType.extendedWildcard:
-      case tokenType.nonGreedyWildcard:
-      case tokenType.nonGreedyExtendedWildcard: {
-        pattern.children.push(wildcard(parser))
-        break
-      }
-    }
-  }
-  return pattern
+  return clauseContent(parser, nodeType.textWithCategories, 'expected target', textWithCategoriesConfig)
 }
 
 const singleReplacementTarget = parser => {
@@ -76,10 +70,9 @@ const multipleReplacementTarget = parser => {
 }
 
 export const target = parser => {
-  const target = multipleReplacementTarget(parser)
-  if (target.children.length === 1) {
-    return target.children[0]
-  } else {
-    return target
+  let target = multipleReplacementTarget(parser)
+  if(target.children.length === 1) {
+    target = target.children[0]
   }
+  return new Tree(nodeType.target, target)
 }

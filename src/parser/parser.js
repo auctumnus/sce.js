@@ -3,9 +3,9 @@
 import { tokenType } from '../scanner'
 import { Tree, nodeType } from './node'
 
+import { rule } from './rule'
 import { metarule } from './metarule'
 import { categoryDef } from './categories'
-import { target } from './target' 
 
 /**
  * A function which errors will be reported to. This defaults to console.error - if left unchanged, the error will be reported in a more human-friendly format.
@@ -23,6 +23,11 @@ import { target } from './target'
  */
 export class Parser {
   constructor (tokens, logger = console.error) {
+    if(!tokens) {
+      throw new Error('No tokens provided.')
+    } else if(!Array.isArray(tokens)) {
+      throw new Error('Tokens must be an array of tokens.')
+    }
     this.tokens = tokens
     this.logger = logger
 
@@ -174,16 +179,8 @@ export class Parser {
       return categoryDef(this)
     // rule
     } else {
-      return this.rule()
+      return rule(this)
     }
-  }
-
-  /**
-   * Parses a rule.
-   * @returns {Tree} The AST branch for the rule.
-   */
-  rule () {
-    return target(this) || this.advance()
   }
 }
 
