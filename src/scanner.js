@@ -67,12 +67,14 @@ const simpleMap = {
  * @property {Number} type The type of the token.
  * @property {String} content The content of the token.
  * @property {Number} line The line that the token occurs on.
+ * @property {Number} linePos The column the token occurs in.
  */
 export class Token {
-  constructor (type, content, line) {
+  constructor (type, content, line, linePos) {
     this.type = type
     this.content = content
     this.line = line
+    this.linePos = linePos
   }
 
   get [Symbol.toStringTag] () {
@@ -107,6 +109,8 @@ export class Scanner {
     this.start = 0
     this.length = source.length
     this.line = 1
+
+    this.linePos = 0
   }
 
   /**
@@ -148,6 +152,10 @@ export class Scanner {
    * @returns {String} The character now pointed to by the value of current.
    */
   advance () {
+    this.linePos++
+    if(this.source[this.current] === '\n') {
+      this.linePos = 0
+    }
     this.current++
     return this.source[this.current - 1]
   }
@@ -183,7 +191,7 @@ export class Scanner {
    * @param {String} content The full text content of the token.
    */
   addToken (type, content) {
-    this.tokens.push(new Token(type, content, this.line))
+    this.tokens.push(new Token(type, content, this.line, this.linePos))
   }
 
   /**

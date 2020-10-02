@@ -13,6 +13,8 @@ import { categoryDef } from './categories'
  * @param {Object} error
  * @param {String} error.message A string describing the error.
  * @param {Number} error.line The line at which the error occurred.
+ * @param {Number} error.linePos The column at which the error occurred.
+ * @param {String} error.content The content of the token where the error occurred.
  */
 
 /**
@@ -39,12 +41,12 @@ export class Parser {
   error (message) {
     // if we're past the first token, error there, otherwise error at first
     let token = this.current - 1 > 0 ? this.current - 1 : this.current
-    const line = this.tokens[token].line
+    const { line, linePos, content } = this.tokens[token]
     this.hadError = true
     if (this.logger === console.error) {
-      this.logger(`Error at line ${line}: ${message}`)
+      this.logger(`Error at line ${line},${linePos} (near "${content}"): ${message}`)
     } else {
-      this.logger({ line, message })
+      this.logger({ line, linePos, content, message })
     }
   }
 
