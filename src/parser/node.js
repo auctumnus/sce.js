@@ -27,6 +27,8 @@ const nodeArray = [
   'positionNumber',
   'position',
 
+  'optionalSequence', 'nonGreedyOptionalSequence',
+
   'singleReplacementTarget', 'multipleReplacementTarget', 'target',
 
   'nonTargetContent',

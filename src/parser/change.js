@@ -17,7 +17,7 @@ export const changeConfig = {
 }
 
 const singleReplacementChange = parser => {
-  return clauseContent(parser, nodeType.singleReplacementChange, 'expected change content', changeConfig)
+  return clauseContent(parser, nodeType.singleReplacementChange, 'expected change content', changeConfig, false)
 }
 
 const multipleReplacementChange = parser => {
