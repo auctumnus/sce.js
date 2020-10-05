@@ -16,8 +16,10 @@ import { Tree, nodeType } from './node'
  * @param {Number} treeType The node type to set for the tree.
  * @param {String} errorMessage The text to report if none of the accepted tokens are found immediately.
  * @param {Object} tokenToFunction An object mapping token types to functions to run.
+ * @param {Boolean} allowOptional Whether to allow optional sequences.
+ * @param {Boolean} isInOptional Whether the parser is currently in an optional sequence. You should generally not set this yourself.
  */
-export const clauseContent = (parser, treeType, errorMessage, tokenToFunction, allowOptional=true) => {
+export const clauseContent = (parser, treeType, errorMessage, tokenToFunction, allowOptional=true, isInOptional=false) => {
   const acceptedTokens = Object.keys(tokenToFunction).map(Number)
   if(allowOptional) acceptedTokens.push(tokenType.leftparen)
   if(!allowOptional && parser.match(tokenType.leftparen)) {
@@ -33,10 +35,17 @@ export const clauseContent = (parser, treeType, errorMessage, tokenToFunction, a
       // handle optional sequence
       parser.advance()
       let tokenToFunctionSafe = tokenToFunction
+      // remove token types from the function map if they wouldn't be allowed
+      // these only occur in the environment, and they aren't allowed in
+      // there, so it's safe to remove them 
       if(tokenType.underscore in tokenToFunctionSafe) {
         delete tokenToFunctionSafe[tokenType.underscore]
       }
-      const sequenceContent = clauseContent(parser, treeType, errorMessage, tokenToFunction, allowOptional, true)
+      if(tokenType.tilde in tokenToFunctionSafe) {
+        delete tokenToFunctionSafe[tokenType.tilde]
+      }
+
+      const sequenceContent = clauseContent(parser, treeType, errorMessage, tokenToFunctionSafe, allowOptional, true)
       if(!parser.expect('expected closing parenthesis', tokenType.rightparen)) return undefined
       parser.advance()
       let nonGreedy = false

@@ -57,7 +57,7 @@ export const textWithCategories = parser => {
 }
 
 const singleReplacementTarget = parser => {
-  const children = [textWithCategories(parser)]
+  const children = [...textWithCategories(parser).children]
   if (parser.match(tokenType.at)) {
     children.push(position(parser))
   }

@@ -32,7 +32,12 @@ const nodeArray = [
   'singleReplacementTarget', 'multipleReplacementTarget', 'target',
 
   'nonTargetContent',
-  'singleReplacementChange', 'multipleReplacementChange', 'change',
+  'singleReplacementChange', 'multipleReplacementChange', 'change', 'else',
+
+  'underscore', 'adjacency',
+
+  'environmentContent',
+  'environment', 'exception',
 
   'flagList', 'binaryFlag', 'ternaryFlag', 'numericFlag'
 ]
