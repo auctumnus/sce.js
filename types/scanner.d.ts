@@ -142,5 +142,5 @@ export declare class Scanner {
  * @param {String} text The text to turn into tokens.
  * @param {Logger} logger The logger to report errors to.
  */
-export declare const scan: (text: string, logger?: ScannerLogger | Console['error']) => Token[];
+export declare const scan: (text: string, logger?: Scanner['logger']) => Token[];
 export {};

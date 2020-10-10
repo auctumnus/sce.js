@@ -2,16 +2,16 @@ import { Tokens } from '../scanner'
 import { Parser } from './parser'
 import { Tree, Node, Nodes } from './node'
 
-import { clauseContent } from './clauseContent'
+import { clauseContent, ClauseContentFunctionMap } from './clauseContent'
 import { textWithCategoriesConfig } from './target'
 
-export const changeConfig = {
+export const changeConfig: ClauseContentFunctionMap = {
   ...textWithCategoriesConfig,
-  [Tokens.percent]: (parser, pattern, content) => {
+  [Tokens.percent]: (parser: Parser, pattern: Tree, content: Node['content']) => {
     pattern.children.push(new Node(Nodes.targetRef, content))
     parser.advance()
   },
-  [Tokens.leftangle]: (parser, pattern, content) => {
+  [Tokens.leftangle]: (parser: Parser, pattern: Tree, content: Node['content']) => {
     pattern.children.push(new Node(Nodes.reverseTargetRef, content))
     parser.advance()
   }

@@ -2,7 +2,7 @@ import { Tokens } from '../scanner'
 import { Parser } from './parser'
 import { Node, Nodes, Tree } from './node'
 
-import { clauseContent } from './clauseContent'
+import { clauseContent, ClauseContentFunctionMap } from './clauseContent'
 import { changeConfig } from './change'
 import { repetition } from './repetition'
 import { position } from './position'
@@ -41,17 +41,17 @@ const globalCount = (parser: Parser) => {
   return new Tree(Nodes.globalCount, [operatorNode, numberNode])
 }
 
-export const environmentConfig = {
+export const environmentConfig: ClauseContentFunctionMap = {
   ...changeConfig,
-  [Tokens.underscore]: (parser, pattern, content) => {
+  [Tokens.underscore]: (parser: Parser, pattern: Tree, content: Node['content']) => {
     pattern.children.push(new Node(Nodes.underscore, content))
     parser.advance()
   },
-  [Tokens.tilde]: (parser, pattern, content) => {
+  [Tokens.tilde]: (parser: Parser, pattern: Tree, content: Node['content']) => {
     pattern.children.push(new Node(Nodes.adjacency, content))
     parser.advance()
   },
-  [Tokens.leftcurly]: (parser, pattern) => {
+  [Tokens.leftcurly]: (parser: Parser, pattern: Tree) => {
     console.log(parser.peek())
     console.log(parser.tokens[parser.current + 1])
     console.log(parser.matchAhead(...comparisonOperators))

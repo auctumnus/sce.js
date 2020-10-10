@@ -1,9 +1,10 @@
-export function addition(parser: any): {
+import { Parser } from './parser';
+import { Tree } from './node';
+export declare const addition: (parser: Parser) => {
     target: Tree;
     change: Tree;
 };
-export function removal(parser: any): {
+export declare const removal: (parser: Parser) => {
     target: Tree;
     change: Tree;
 };
-import { Tree } from "./node";

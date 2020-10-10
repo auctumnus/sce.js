@@ -1,2 +1,3 @@
-export function rule(parser: any): Tree;
-import { Tree } from "./node";
+import { Parser } from './parser';
+import { Tree } from './node';
+export declare const rule: (parser: Parser) => Tree;

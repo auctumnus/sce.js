@@ -42,18 +42,37 @@ export declare const enum Nodes {
     adjacency = 40,
     globalCount = 41,
     comparisonOperator = 42,
-    number = 43,
+    countNumber = 43,
     environmentContent = 44,
     environment = 45,
     exception = 46,
     flagList = 47,
     binaryFlag = 48,
     ternaryFlag = 49,
-    numericFlag = 50
+    numericFlag = 50,
+    repeatFlag = 51,
+    chanceFlag = 52,
+    persistFlag = 53
 }
 export declare const nodeType: Readonly<{
     [k: string]: number;
 }>;
+/**
+ * A node has a type and content, but not children.
+ * @typedef {Object} Node
+ * @property {Number} type The type of node this is.
+ * @property {String|Number} content The content of the node.
+ * @property {Boolean} isTree Whether the object is a tree. Always false.
+ * @property {Boolean} isNode Whether the object is a node. Always true.
+ */
+export declare class Node {
+    type: Nodes;
+    content: string | number;
+    isTree: false;
+    isNode: true;
+    constructor(type: Nodes, content: string | number);
+    get [Symbol.toStringTag](): string;
+}
 /**
  * A tree is a node with children, as opposed to content. It can also store flags.
  * @typedef {Object} Tree
@@ -82,21 +101,5 @@ export declare class Tree {
      * @returns {Boolean} Whether this tree has the flag provided or not.
      */
     hasFlag(name: string): boolean;
-    get [Symbol.toStringTag](): string;
-}
-/**
- * A node has a type and content, but not children.
- * @typedef {Object} Node
- * @property {Number} type The type of node this is.
- * @property {String|Number|Object} content The content of the node.
- * @property {Boolean} isTree Whether the object is a tree. Always false.
- * @property {Boolean} isNode Whether the object is a node. Always true.
- */
-export declare class Node {
-    type: Nodes;
-    content: string | number | Object;
-    isTree: false;
-    isNode: true;
-    constructor(type: Nodes, content: string | number | Object);
     get [Symbol.toStringTag](): string;
 }

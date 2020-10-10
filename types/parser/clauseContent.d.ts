@@ -10,7 +10,7 @@ import { Parser } from './parser';
  * @param {Number} type The type of the token returned by parser.peek().
  * @param {Number} line The line of the token returned by parser.peek().
  */
-interface ClauseContentFunction {
+export interface ClauseContentFunction {
     (parser: Parser, pattern?: Tree, content?: string | number, type?: Tokens, line?: number): any;
 }
 export declare type ClauseContentFunctionMap = Partial<Record<Tokens, ClauseContentFunction>>;
@@ -25,4 +25,3 @@ export declare type ClauseContentFunctionMap = Partial<Record<Tokens, ClauseCont
  * @param {Boolean} isInOptional Whether the parser is currently in an optional sequence. You should generally not set this yourself.
  */
 export declare const clauseContent: (parser: Parser, treeType: Nodes, errorMessage: string, tokenToFunction: ClauseContentFunctionMap, allowOptional?: boolean) => Tree;
-export {};

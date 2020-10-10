@@ -10,7 +10,7 @@ import { Parser } from './parser'
  * @param {Number} type The type of the token returned by parser.peek().
  * @param {Number} line The line of the token returned by parser.peek().
  */
-interface ClauseContentFunction {
+export interface ClauseContentFunction {
   (parser: Parser, pattern?: Tree, content?: string | number, type?: Tokens, line?: number): any
 }
 

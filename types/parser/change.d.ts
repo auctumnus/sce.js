@@ -1,5 +1,5 @@
-export const changeConfig: {
-    [x: number]: ((parser: any, pattern: any, content: any) => void) | ((parser: any, pattern: any, content: any) => void);
-};
-export function change(parser: any): Tree;
-import { Tree } from "./node";
+import { Parser } from './parser';
+import { Tree } from './node';
+import { ClauseContentFunctionMap } from './clauseContent';
+export declare const changeConfig: ClauseContentFunctionMap;
+export declare const change: (parser: Parser) => Tree;
