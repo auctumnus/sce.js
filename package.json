@@ -15,7 +15,7 @@
   "unpkg": "dist/sce.umd.js",
   "types": "types/scejs.d.ts",
   "scripts": {
-    "test": "npm run build && npm run lint && ava",
+    "test": "concurrently -n \"BUILD,LINT\" \"npm run build\" \"npm run lint\" && ava",
     "build": "microbundle",
     "dev": "microbundle watch",
     "lint": "standardx src/**/* test/**/* --fix"
@@ -36,6 +36,7 @@
     "@typescript-eslint/eslint-plugin": "^4.4.0",
     "@typescript-eslint/parser": "^4.4.0",
     "ava": "^3.12.1",
+    "concurrently": "^5.3.0",
     "eslint": "^7.7.0",
     "microbundle": "^0.12.4",
     "standardx": "^5.0.0",
