@@ -16,8 +16,8 @@
   "types": "types/scejs.d.ts",
   "scripts": {
     "test": "concurrently -n \"BUILD,LINT\" \"npm run build\" \"npm run lint\" && ava",
-    "build": "microbundle",
-    "dev": "microbundle watch",
+    "build": "microbundle --external none",
+    "dev": "microbundle  --external none watch",
     "lint": "standardx src/**/* test/**/* --fix"
   },
   "standardx": {

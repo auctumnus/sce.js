@@ -1,3 +1,4 @@
+/// <reference types="lodash" />
 /// <reference types="node" />
 export declare const enum Tokens {
     text = 0,
@@ -37,9 +38,7 @@ export declare const enum Tokens {
     newline = 34,
     eof = 35
 }
-export declare const tokenType: Readonly<{
-    [k: string]: number;
-}>;
+export declare const tokenType: Readonly<import("lodash").Dictionary<number>>;
 /**
  * A token created by the scanner.
  * @typedef {Object} Token

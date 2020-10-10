@@ -1,4 +1,4 @@
-import { Tokens } from '../scanner'
+import fromPairs from 'lodash.frompairs'
 const nodeArray = [
   'ast',
 
@@ -91,7 +91,7 @@ export const enum Nodes {
   repeatFlag, chanceFlag, persistFlag
 }
 
-export const nodeType = Object.freeze(Object.fromEntries(nodeArray.map((k, i) => [k, i])))
+export const nodeType = Object.freeze(fromPairs(nodeArray.map((k, i) => [k, i])))
 
 /**
  * A node has a type and content, but not children.

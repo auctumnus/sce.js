@@ -1,4 +1,5 @@
 'use strict'
+import fromPairs from 'lodash.frompairs'
 /* Turns a string into an array of tokens. */
 
 /**
@@ -70,7 +71,7 @@ const tokenArray = [
   'eof'
 ]
 
-export const tokenType = Object.freeze(Object.fromEntries(tokenArray.map((k, i) => [k, i])))
+export const tokenType = Object.freeze(fromPairs(tokenArray.map((k, i) => [k, i])))
 
 const simpleMap = {
   '(': Tokens.leftparen,

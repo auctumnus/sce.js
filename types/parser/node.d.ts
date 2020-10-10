@@ -1,3 +1,4 @@
+/// <reference types="lodash" />
 export declare const enum Nodes {
     ast = 0,
     line = 1,
@@ -54,9 +55,7 @@ export declare const enum Nodes {
     chanceFlag = 52,
     persistFlag = 53
 }
-export declare const nodeType: Readonly<{
-    [k: string]: number;
-}>;
+export declare const nodeType: Readonly<import("lodash").Dictionary<number>>;
 /**
  * A node has a type and content, but not children.
  * @typedef {Object} Node
