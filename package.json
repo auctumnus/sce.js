@@ -8,14 +8,23 @@
     "url": "https://github.com/auctumnus/sce.js/issues"
   },
   "sideEffects": false,
-  "main": "dist/scejs.cjs.js",
-  "module": "dist/scejs.esm.js",
-  "browser": "dist/scejs.umd.js",
+  "source": "src/index.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "browser": "dist/umd/index.js",
+  "unpkg": "dist/umd/index.js",
+  "types": "types/scejs.d.ts",
   "scripts": {
-    "test": "rollup -c && standard --fix && ava",
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "lint": "standard --fix"
+    "test": "npm run build && npm run lint && ava",
+    "build": "microbundle",
+    "dev": "microbundle watch",
+    "lint": "standardx src/**/* test/**/* --fix"
+  },
+  "standardx": {
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint/eslint-plugin"
+    ]
   },
   "keywords": [
     "linguistics"
@@ -23,24 +32,19 @@
   "author": "auctumnus",
   "license": "ISC",
   "devDependencies": {
-    "@babel/cli": "^7.10.5",
+    "@types/lodash.frompairs": "^4.0.6",
+    "@typescript-eslint/eslint-plugin": "^4.4.0",
+    "@typescript-eslint/parser": "^4.4.0",
     "ava": "^3.12.1",
     "eslint": "^7.7.0",
-    "rollup-plugin-terser": "^7.0.0",
-    "standard": "^14.3.4"
+    "microbundle": "^0.12.4",
+    "standardx": "^5.0.0",
+    "typescript": "^4.0.3"
   },
   "dependencies": {
-    "@babel/core": "^7.11.4",
-    "@babel/plugin-transform-named-capturing-groups-regex": "^7.10.4",
-    "@babel/preset-env": "^7.11.0",
-    "@rollup/plugin-babel": "^5.2.0",
-    "@rollup/plugin-commonjs": "^13.0.2",
-    "@rollup/plugin-node-resolve": "^8.4.0",
-    "core-js": "^3.6.5",
-    "rollup": "^2.26.5"
+    "lodash.frompairs": "^4.0.1"
   },
   "browserslist": [
     "defaults"
-  ],
-  "unpkg": "dist/scejs.umd.js"
+  ]
 }

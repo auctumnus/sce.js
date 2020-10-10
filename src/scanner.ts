@@ -6,6 +6,38 @@
  */
 const specialCharacters = ';^ >/!+-[](){}=*?"%<^,&_~@\n|'
 
+export const enum Tokens {
+  text, number,
+
+  leftparen, rightparen,
+  leftbrace, rightbrace,
+  leftcurly, rightcurly,
+  leftangle, rightangle, copy, move,
+
+  wildcard, extendedWildcard,
+  nonGreedyWildcard, nonGreedyExtendedWildcard,
+
+  quote,
+  percent,
+  underscore,
+  tilde,
+  at,
+  equals,
+  slash,
+
+  exclamation,
+  question,
+  plus, minus,
+  comma,
+  semicolon, bar,
+
+  catPlus, catMinus,
+  greaterThanOrEqual, lessThanOrEqual,
+
+  newline,
+  eof
+}
+
 const tokenArray = [
   'text', 'number',
 
@@ -31,9 +63,8 @@ const tokenArray = [
   'comma',
   'semicolon', 'bar',
 
-  'equals',
   'catPlus', 'catMinus',
-  'greaterThan', 'lessThan',
+  'greaterThanOrEqual', 'lessThanOrEqual',
 
   'newline',
   'eof'
@@ -42,23 +73,23 @@ const tokenArray = [
 export const tokenType = Object.freeze(Object.fromEntries(tokenArray.map((k, i) => [k, i])))
 
 const simpleMap = {
-  '(': 'leftparen',
-  ')': 'rightparen',
-  '[': 'leftbrace',
-  ']': 'rightbrace',
-  '{': 'leftcurly',
-  '}': 'rightcurly',
-  '"': 'quote',
-  '%': 'percent',
-  _: 'underscore',
-  '~': 'tilde',
-  '@': 'at',
-  '!': 'exclamation',
-  '?': 'question',
-  ',': 'comma',
-  ';': 'semicolon',
-  '=': 'equals',
-  '|': 'bar'
+  '(': Tokens.leftparen,
+  ')': Tokens.rightparen,
+  '[': Tokens.leftbrace,
+  ']': Tokens.rightbrace,
+  '{': Tokens.leftcurly,
+  '}': Tokens.rightcurly,
+  '"': Tokens.quote,
+  '%': Tokens.percent,
+  _: Tokens.underscore,
+  '~': Tokens.tilde,
+  '@': Tokens.at,
+  '!': Tokens.exclamation,
+  '?': Tokens.question,
+  ',': Tokens.comma,
+  ';': Tokens.semicolon,
+  '=': Tokens.equals,
+  '|': Tokens.bar
 }
 
 /**
@@ -70,7 +101,11 @@ const simpleMap = {
  * @property {Number} linePos The column the token occurs in.
  */
 export class Token {
-  constructor (type, content, line, linePos) {
+  type: number
+  content: string | number
+  line: number
+  linePos: number
+  constructor (type: number, content: string | number, line: number, linePos: number) {
     this.type = type
     this.content = content
     this.line = line
@@ -89,7 +124,15 @@ export class Token {
  * @param {String} error.message A string describing the error.
  * @param {Number} error.line The line at which the error occurred.
  */
+interface ScannerError {
+  message: string,
+  line: number,
+  linePos: number
+}
 
+interface ScannerLogger {
+  (ScannerError): any
+}
 
 export class Scanner {
   /**
@@ -97,7 +140,20 @@ export class Scanner {
    * @param {String} source The input source for the SCE ruleset.
    * @param {Logger} logger The function to pass errors to. If none is given, the default is console.error. If a function is provided, the errors will provided as an object matching {line: (line), message: (message)}.
    */
-  constructor (source, logger = console.error) {
+  source: string
+  logger: ScannerLogger | Console['error']
+
+  tokens: Token[]
+
+  hadError: boolean
+
+  current: number
+  start: number
+  length: number
+  line: number
+
+  linePos: number
+  constructor (source: string, logger: ScannerLogger | Console['error'] = console.error) {
     this.source = source
     this.logger = logger
 
@@ -117,12 +173,12 @@ export class Scanner {
    * Sets hadError to true and reports the error to the logger.
    * @param {String} message The message to report.
    */
-  error (message) {
+  error (message: string) {
     this.hadError = true
     if (this.logger === console.error) {
       this.logger(`Error at line ${this.line}: ${message}`)
     } else {
-      this.logger({ line: this.line, message })
+      this.logger({ line: this.line, message, linePos: this.linePos })
     }
   }
 
@@ -135,7 +191,7 @@ export class Scanner {
       this.start = this.current
       this.scanToken()
     }
-    this.addToken(tokenType.eof, '')
+    this.addToken(Tokens.eof, '')
     return this.tokens
   }
 
@@ -153,7 +209,7 @@ export class Scanner {
    */
   advance () {
     this.linePos++
-    if(this.source[this.current] === '\n') {
+    if (this.source[this.current] === '\n') {
       this.linePos = 0
     }
     this.current++
@@ -177,7 +233,7 @@ export class Scanner {
    * @param {...String} queryChars The character(s) to match.
    * @returns {Boolean} Whether the character was found in the next position.
    */
-  match (...queryChars) {
+  match (...queryChars: string[]) {
     if (queryChars.includes(this.peek())) {
       return true
     } else {
@@ -188,9 +244,9 @@ export class Scanner {
   /**
    * Adds a new token to the tokens array of the scanner.
    * @param {Number} type The type of the token.
-   * @param {String} content The full text content of the token.
+   * @param {String|Number} content The full text content of the token.
    */
-  addToken (type, content) {
+  addToken (type: Tokens, content: string|number) {
     this.tokens.push(new Token(type, content, this.line, this.linePos))
   }
 
@@ -223,7 +279,7 @@ export class Scanner {
     if (Number.isNaN(parsed)) {
       this.error('invalid number')
     } else {
-      this.addToken(tokenType.number, parsed)
+      this.addToken(Tokens.number, parsed)
     }
   }
 
@@ -242,7 +298,7 @@ export class Scanner {
       value += this.peek()
       this.advance()
     }
-    this.addToken(tokenType.text, value)
+    this.addToken(Tokens.text, value)
   }
 
   /**
@@ -258,7 +314,7 @@ export class Scanner {
   scanToken () {
     const char = this.advance()
     if (Object.prototype.hasOwnProperty.call(simpleMap, char)) {
-      this.addToken(tokenType[simpleMap[char]], char)
+      this.addToken(simpleMap[char], char)
       return
     }
     switch (char) {
@@ -269,9 +325,9 @@ export class Scanner {
         } else {
           if (this.match('=')) {
             this.advance()
-            this.addToken(tokenType.catMinus, '-=')
+            this.addToken(Tokens.catMinus, '-=')
           } else {
-            this.addToken(tokenType.minus, '-')
+            this.addToken(Tokens.minus, '-')
           }
         }
         break
@@ -280,9 +336,9 @@ export class Scanner {
       case '+': {
         if (this.match('=')) {
           this.advance()
-          this.addToken(tokenType.catPlus, '+=')
+          this.addToken(Tokens.catPlus, '+=')
         } else {
-          this.addToken(tokenType.plus)
+          this.addToken(Tokens.plus, '+')
         }
         break
       }
@@ -290,16 +346,16 @@ export class Scanner {
       case '<': {
         if (this.match('=')) {
           this.advance()
-          this.addToken(tokenType.lessThan, '<=')
+          this.addToken(Tokens.lessThanOrEqual, '<=')
         } else {
-          this.addToken(tokenType.leftangle, '<')
+          this.addToken(Tokens.leftangle, '<')
         }
         break
       }
       case '>': {
         if (this.match('=')) {
           this.advance()
-          this.addToken(tokenType.greaterThan, '>=')
+          this.addToken(Tokens.greaterThanOrEqual, '>=')
         } else {
           this.whitespace()
           if (this.match('^')) {
@@ -307,12 +363,12 @@ export class Scanner {
             this.whitespace()
             if (this.match('?')) { // >^?
               this.advance()
-              this.addToken(tokenType.move, '>^?')
+              this.addToken(Tokens.move, '>^?')
             } else { // >^
-              this.addToken(tokenType.copy, '>^')
+              this.addToken(Tokens.copy, '>^')
             }
           } else { // >
-            this.addToken(tokenType.rightangle, '>')
+            this.addToken(Tokens.rightangle, '>')
           }
         }
         break
@@ -322,26 +378,26 @@ export class Scanner {
           this.advance()
           if (this.match('?')) { // **?
             this.advance()
-            this.addToken(tokenType.nonGreedyExtendedWilcard, '**?')
+            this.addToken(Tokens.nonGreedyExtendedWildcard, '**?')
           } else { // **
-            this.addToken(tokenType.extendedWildcard, '**')
+            this.addToken(Tokens.extendedWildcard, '**')
           }
         } else if (this.match('?')) { // *?
           this.advance()
-          this.addToken(tokenType.nonGreedyWildcard, '*?')
+          this.addToken(Tokens.nonGreedyWildcard, '*?')
         } else { // *
-          this.addToken(tokenType.wildcard, '*')
+          this.addToken(Tokens.wildcard, '*')
         }
         break
       }
       case '/': {
         if (this.match('/')) this.comment()
-        else this.addToken(tokenType.slash, '/')
+        else this.addToken(Tokens.slash, '/')
         break
       }
       // newline
       case '\n': {
-        this.addToken(tokenType.newline, '\n')
+        this.addToken(Tokens.newline, '\n')
         this.line++
         break
       }
@@ -363,6 +419,6 @@ export class Scanner {
  * @param {String} text The text to turn into tokens.
  * @param {Logger} logger The logger to report errors to.
  */
-export const scan = (text, logger=console.error) => {
+export const scan = (text: string, logger: ScannerLogger | Console['error'] = console.error) => {
   return new Scanner(text, logger).scanTokens()
 }

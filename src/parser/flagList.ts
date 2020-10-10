@@ -1,11 +1,12 @@
-import { tokenType } from '../scanner'
-import { Tree, Node, nodeType } from './node'
+import { Tokens } from '../scanner'
+import { Node, Nodes } from './node'
+import { Parser } from './parser'
 
-const binaryFlag = parser => {
-  if (!parser.expect('expected flag', tokenType.text)) return undefined
+const binaryFlag = (parser: Parser) => {
+  if (!parser.expect('expected flag', Tokens.text)) return undefined
   const content = parser.advance().content
   if (content === 'ignore' || content === 'rtl') {
-    return new Node(nodeType.binaryFlag, content)
+    return new Node(Nodes.binaryFlag, content)
   } else {
     parser.error('expected one of "ignore" or "rtl"')
     parser.toLineEnd()
@@ -13,19 +14,19 @@ const binaryFlag = parser => {
   }
 }
 
-const ternaryFlag = parser => {
-  if (!parser.expect('expected flag', tokenType.exclamation,
-    tokenType.text)) return undefined
+const ternaryFlag = (parser: Parser) => {
+  if (!parser.expect('expected flag', Tokens.exclamation,
+    Tokens.text)) return undefined
   let content = ''
-  if (parser.match(tokenType.exclamation)) {
+  if (parser.match(Tokens.exclamation)) {
     content += '!'
     parser.advance()
   }
-  if (!parser.expect('expected one of "ditto" or "stop"', tokenType.text)) return undefined
+  if (!parser.expect('expected one of "ditto" or "stop"', Tokens.text)) return undefined
 
   const textContent = parser.advance().content
   if (textContent === 'ditto' || textContent === 'stop') {
-    return new Node(nodeType.ternaryFlag, content + textContent)
+    return new Node(Nodes.ternaryFlag, content + textContent)
   } else {
     parser.error('expected one of "ditto" or "stop"')
     parser.toLineEnd()
@@ -33,13 +34,13 @@ const ternaryFlag = parser => {
   }
 }
 
-const numericFlag = parser => {
-  if (!parser.expect('expected flag', tokenType.text)) return undefined
+const numericFlag = (parser: Parser) => {
+  if (!parser.expect('expected flag', Tokens.text)) return undefined
   let flag = parser.advance().content
   if (flag === 'repeat:' || flag === 'persist:' || flag === 'chance:') {
     // remove colon at end
     flag = flag.slice(0, flag.length - 1)
-    if (!parser.expect('expected number', tokenType.number)) return undefined
+    if (!parser.expect('expected number', Tokens.number)) return undefined
     const number = parser.advance().content
     // according to SCE docs, repeat and persist have a max of 1000 and a
     // minimum of 1
@@ -54,7 +55,22 @@ const numericFlag = parser => {
       parser.toLineEnd()
       return undefined
     }
-    return new Node(nodeType.numericFlag, { flag, number })
+    let type: Nodes
+    switch(flag) {
+      case 'repeat:': {
+        type = Nodes.repeatFlag
+        break
+      }
+      case 'persist:': {
+        type = Nodes.persistFlag
+        break
+      }
+      case 'chance:': {
+        type = Nodes.chanceFlag
+        break
+      }
+    }
+    return new Node(type, number)
   } else {
     parser.error('expected one of "repeat" or "persist" or "chance"')
     parser.toLineEnd()
@@ -62,10 +78,10 @@ const numericFlag = parser => {
   }
 }
 
-const flag = parser => {
-  if (parser.match(tokenType.exclamation)) {
-    return parser.ternaryFlag()
-  } else if (parser.match(tokenType.text)) {
+const flag = (parser: Parser) => {
+  if (parser.match(Tokens.exclamation)) {
+    return ternaryFlag(parser)
+  } else if (parser.match(Tokens.text)) {
     switch (parser.peek().content) {
       case 'ignore': case 'rtl': {
         return binaryFlag(parser)
@@ -89,7 +105,7 @@ const flag = parser => {
   }
 }
 
-export const flagList = parser => {
+export const flagList = (parser: Parser) => {
   const flagFn = () => flag(parser)
-  return parser.options(nodeType.flagList, flagFn, tokenType.semicolon)
+  return parser.options(Nodes.flagList, flagFn, Tokens.semicolon)
 }

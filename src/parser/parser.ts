@@ -1,6 +1,6 @@
 'use strict'
 
-import { tokenType } from '../scanner'
+import { tokenType, Tokens, Token } from '../scanner'
 import { Tree, nodeType } from './node'
 
 import { rule } from './rule'
@@ -14,8 +14,17 @@ import { categoryDef } from './categories'
  * @param {String} error.message A string describing the error.
  * @param {Number} error.line The line at which the error occurred.
  * @param {Number} error.linePos The column at which the error occurred.
- * @param {String} error.content The content of the token where the error occurred.
+ * @param {String|Number} error.content The content of the token where the error occurred.
  */
+interface ParserError {
+  message: string,
+  line: number,
+  linePos: number,
+  content: string | number
+}
+interface ParserLogger {
+  (ParserError): any
+}
 
 /**
  * The parser parses tokens from the scanner and turns them into an AST (Abstract Syntax Tree).
@@ -24,10 +33,14 @@ import { categoryDef } from './categories'
  * @property {Logger} logger The function to be called when an error occurs. The logger will receive an object with the line it occurred at and a message describing the error.
  */
 export class Parser {
-  constructor (tokens, logger = console.error) {
-    if(!tokens) {
+  tokens: Token[]
+  logger: ParserLogger | Console['error']
+  hadError: boolean
+  current: number
+  constructor (tokens, logger: ParserLogger | Console['error'] = console.error) {
+    if (!tokens) {
       throw new Error('No tokens provided.')
-    } else if(!Array.isArray(tokens)) {
+    } else if (!Array.isArray(tokens)) {
       throw new Error('Tokens must be an array of tokens.')
     }
     this.tokens = tokens
@@ -38,9 +51,9 @@ export class Parser {
     this.current = 0
   }
 
-  error (message) {
+  error (message: string) {
     // if we're past the first token, error there, otherwise error at first
-    let token = this.current - 1 > 0 ? this.current - 1 : this.current
+    const token = this.current - 1 > 0 ? this.current - 1 : this.current
     const { line, linePos, content } = this.tokens[token]
     this.hadError = true
     if (this.logger === console.error) {
@@ -80,7 +93,7 @@ export class Parser {
    * @param {...Number} types All of the possible types to match.
    * @returns {Boolean} Whether any of the types were matched.
    */
-  match (...types) {
+  match (...types: Tokens[]) {
     if (this.isAtEnd()) return false
     return types.includes(this.peek().type)
   }
@@ -90,7 +103,7 @@ export class Parser {
    * @param {...Number} types All of the possible types to match.
    * @returns {Boolean} Whether any of the types were matched.
    */
-  matchAhead (...types) {
+  matchAhead (...types){
     if (this.isAtEnd()) return false
     return this.tokens[this.current + 1] &&
            types.includes(this.tokens[this.current + 1].type)
@@ -139,7 +152,7 @@ export class Parser {
         ast.children.push(this.line())
         this.gobbleNewlines()
       }
-    } catch(err) {
+    } catch (err) {
       this.error('javascript error')
       this.logger(err)
     }
@@ -151,6 +164,7 @@ export class Parser {
    * @param {Number} type The type to return for the tree.
    * @param {Function} fn The function to parse as a constituent part.
    * @param {Number} separator The token type to split on.
+   * @returns {Tree} Syntax tree
    */
   options (type, fn, separator = tokenType.comma) {
     const tree = new Tree(type)
@@ -175,7 +189,7 @@ export class Parser {
   line () {
     // metarule
     if (this.match(tokenType.exclamation)) {
-      return metarule(this)
+      return new Tree(nodeType.metarule, [metarule(this)])
     // category definition
     } else if (this.matchAhead(tokenType.equals)) {
       return categoryDef(this)
@@ -191,6 +205,6 @@ export class Parser {
  * @param {Token[]} tokens The tokens to parse.
  * @param {Logger} logger The function to report errors to.
  */
-export const parse = (tokens, logger=console.error) => {
+export const parse = (tokens: Token[], logger: ParserLogger = console.error) => {
   return new Parser(tokens, logger).parse()
 }
