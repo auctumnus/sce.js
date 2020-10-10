@@ -4,7 +4,7 @@ import { Node, Nodes } from './node'
 
 const getNextFlag = (parser: Parser) => {
   const next = parser.advance()
-  if(typeof next.content !== 'string') {
+  if (typeof next.content !== 'string') {
     parser.error('Unexpected number')
     parser.toLineEnd()
     return undefined
@@ -52,7 +52,7 @@ export const metarule = (parser: Parser) => {
   parser.advance() // past the !
   if (!parser.expect('expected metarule', Tokens.text)) return undefined
   const next = parser.peek()
-  if(typeof next.content !== 'string') {
+  if (typeof next.content !== 'string') {
     parser.error('Unexpected number')
     parser.toLineEnd()
     return undefined

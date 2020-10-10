@@ -1,5 +1,4 @@
 'use strict'
-
 import { tokenType, Tokens, Token } from '../scanner'
 import { Tree, nodeType } from './node'
 
@@ -34,10 +33,10 @@ interface ParserLogger {
  */
 export class Parser {
   tokens: Token[]
-  logger: ParserLogger | Console['error']
+  logger: ParserLogger | Console['error'] // eslint-disable-line
   hadError: boolean
   current: number
-  constructor (tokens, logger: ParserLogger | Console['error'] = console.error) {
+  constructor (tokens, logger: ParserLogger | Console['error'] = console.error) { // eslint-disable-line
     if (!tokens) {
       throw new Error('No tokens provided.')
     } else if (!Array.isArray(tokens)) {
@@ -103,7 +102,7 @@ export class Parser {
    * @param {...Number} types All of the possible types to match.
    * @returns {Boolean} Whether any of the types were matched.
    */
-  matchAhead (...types){
+  matchAhead (...types) {
     if (this.isAtEnd()) return false
     return this.tokens[this.current + 1] &&
            types.includes(this.tokens[this.current + 1].type)

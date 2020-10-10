@@ -141,7 +141,7 @@ export class Scanner {
    * @param {Logger} logger The function to pass errors to. If none is given, the default is console.error. If a function is provided, the errors will provided as an object matching {line: (line), message: (message)}.
    */
   source: string
-  logger: ScannerLogger | Console['error']
+  logger: ScannerLogger | Console['error'] // eslint-disable-line
 
   tokens: Token[]
 
@@ -153,7 +153,7 @@ export class Scanner {
   line: number
 
   linePos: number
-  constructor (source: string, logger: ScannerLogger | Console['error'] = console.error) {
+  constructor (source: string, logger: ScannerLogger | Console['error'] = console.error) { // eslint-disable-line
     this.source = source
     this.logger = logger
 
@@ -419,6 +419,6 @@ export class Scanner {
  * @param {String} text The text to turn into tokens.
  * @param {Logger} logger The logger to report errors to.
  */
-export const scan = (text: string, logger: ScannerLogger | Console['error'] = console.error) => {
+export const scan = (text: string, logger: Scanner['logger'] = console.error) => {
   return new Scanner(text, logger).scanTokens()
 }

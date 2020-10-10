@@ -56,7 +56,7 @@ const numericFlag = (parser: Parser) => {
       return undefined
     }
     let type: Nodes
-    switch(flag) {
+    switch (flag) {
       case 'repeat:': {
         type = Nodes.repeatFlag
         break

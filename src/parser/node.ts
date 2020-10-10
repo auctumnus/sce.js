@@ -94,6 +94,31 @@ export const enum Nodes {
 export const nodeType = Object.freeze(Object.fromEntries(nodeArray.map((k, i) => [k, i])))
 
 /**
+ * A node has a type and content, but not children.
+ * @typedef {Object} Node
+ * @property {Number} type The type of node this is.
+ * @property {String|Number} content The content of the node.
+ * @property {Boolean} isTree Whether the object is a tree. Always false.
+ * @property {Boolean} isNode Whether the object is a node. Always true.
+ */
+export class Node {
+  type: Nodes
+  content: string | number
+  isTree: false
+  isNode: true
+  constructor (type: Nodes, content: string | number) {
+    this.type = type
+    this.content = content
+    this.isTree = false
+    this.isNode = true
+  }
+
+  get [Symbol.toStringTag] () {
+    return nodeArray[this.type]
+  }
+}
+
+/**
  * A tree is a node with children, as opposed to content. It can also store flags.
  * @typedef {Object} Tree
  * @property {Number} type The type of tree.
@@ -130,31 +155,6 @@ export class Tree {
    */
   hasFlag (name: string): boolean {
     return this.flags.includes(name)
-  }
-
-  get [Symbol.toStringTag] () {
-    return nodeArray[this.type]
-  }
-}
-
-/**
- * A node has a type and content, but not children.
- * @typedef {Object} Node
- * @property {Number} type The type of node this is.
- * @property {String|Number} content The content of the node.
- * @property {Boolean} isTree Whether the object is a tree. Always false.
- * @property {Boolean} isNode Whether the object is a node. Always true.
- */
-export class Node {
-  type: Nodes
-  content: string | number
-  isTree: false
-  isNode: true
-  constructor (type: Nodes, content: string | number ) {
-    this.type = type
-    this.content = content
-    this.isTree = false
-    this.isNode = true
   }
 
   get [Symbol.toStringTag] () {
