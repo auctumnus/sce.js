@@ -1,5 +1,8 @@
 # sce.js
-![version](https://img.shields.io/npm/v/sce?style=flat-square) ![travis](https://img.shields.io/travis/auctumnus/sce.js?style=flat-square) ![license](https://img.shields.io/npm/l/sce?style=flat-square)
+[![build](https://img.shields.io/github/workflow/status/auctumnus/sce.js/Node.js%20CI?style=flat-square)](https://github.com/auctumnus/sce.js/actions?query=workflow%3A"Node.js+CI")
+[![npm](https://img.shields.io/npm/v/sce?style=flat-square)](https://www.npmjs.com/package/sce)
+[![license](https://img.shields.io/npm/l/sce?style=flat-square)](https://github.com/auctumnus/sce.js/blob/master/LICENSE.md)
+![works on my machine](https://img.shields.io/badge/works%20on-my%20machine-blue?style=flat-square)
 
 sce.js is a an implementation of SCE (Sound Change Engine) in Javascript and consumable for both Node and the browser.
 The original (Python) implementation can be found [here](https://github.com/KathTheDragon/Conlanger).
