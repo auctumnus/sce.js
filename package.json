@@ -1,0 +1,32 @@
+{
+  "name": "sce",
+  "version": "1.0.0",
+  "description": "Parses and runs Sound Change Engine (SCE) rules.",
+  "main": "dist/sce.js",
+  "module": "dist/sce.mjs",
+  "typings": "dist/sce.d.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "uvu test",
+    "lint": "eslint --fix . && prettier --write ."
+  },
+  "author": {
+    "name": "autumn",
+    "email": "auctumnus@pm.me",
+    "url": "https://autumns.page"
+  },
+  "license": "NVPLv7+",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.14.0",
+    "@typescript-eslint/parser": "^5.14.0",
+    "esbuild": "^0.14.5",
+    "eslint": "^8.4.1",
+    "eslint-config-prettier": "^8.5.0",
+    "prettier": "^2.5.1",
+    "rollup": "^2.61.1",
+    "rollup-plugin-dts": "^4.0.1",
+    "rollup-plugin-esbuild": "^4.7.2",
+    "typescript": "^4.5.4",
+    "uvu": "^0.5.3"
+  }
+}
