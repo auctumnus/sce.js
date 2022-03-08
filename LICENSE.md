@@ -56,17 +56,17 @@ individual, individuals, entity or entities who created the Work or if
 no individual or entity can be identified, the publisher; and in
 addition
 
--   in the case of a performance the actors, singers, musicians,
-    dancers, and other persons who act, sing, deliver, declaim, play in,
-    interpret or otherwise perform literary or artistic works or
-    expressions of folklore;
+- in the case of a performance the actors, singers, musicians,
+  dancers, and other persons who act, sing, deliver, declaim, play in,
+  interpret or otherwise perform literary or artistic works or
+  expressions of folklore;
 
--   in the case of a phonogram the producer being the person or legal
-    entity who first fixes the sounds of a performance or other sounds;
-    and,
+- in the case of a phonogram the producer being the person or legal
+  entity who first fixes the sounds of a performance or other sounds;
+  and,
 
--   in the case of broadcasts, the organization that transmits the
-    broadcast.
+- in the case of broadcasts, the organization that transmits the
+  broadcast.
 
 Work is the literary and/or artistic work offered under the terms of
 this License including without limitation any production in the
@@ -218,12 +218,12 @@ form, or You provide a URI for the corresponding Source Code to the
 Work, to any recipients of the data served or modified by the Web
 Service.
 
-## 
+##
 
 You may exercise the rights granted in the license grant for any
 purposes only if:
 
-i.  You do not use the Work for the purpose of inflicting Bodily Harm on
+i. You do not use the Work for the purpose of inflicting Bodily Harm on
 human beings (subject to criminal prosecution or otherwise) outside
 of providing medical aid or undergoing a voluntary procedure under
 no form of Coercion.
@@ -236,7 +236,7 @@ iii. You do not use the Work in an Act of War.
 iv. You do not use the Work for the purpose of supporting or profiting
 from an Act of War.
 
-v.  You do not use the Work for the purpose of Incarceration.
+v. You do not use the Work for the purpose of Incarceration.
 
 vi. You do not use the Work for the purpose of extracting, processing,
 or refining, oil, gas, or coal. Or to in any other way to
@@ -252,7 +252,7 @@ Speech on the basis of sex, sexual orientation, gender identity,
 race, age, disability, color, national origin, religion, caste, or
 lower economic status.
 
-## 
+##
 
 If You Distribute, or Publicly Perform the Work or any Adaptations or
 Collections, You must, unless a request has been made by any Licensor to
@@ -260,7 +260,7 @@ remove credit from a Collection or Adaptation, keep intact all copyright
 notices for the Work and provide, reasonable to the medium or means You
 are utilizing:
 
-i.  the name of the Original Author (or pseudonym, if applicable) if
+i. the name of the Original Author (or pseudonym, if applicable) if
 supplied, and/or if the Original Author and/or Licensor designate
 another party or parties (e.g., a sponsor institute, publishing
 entity, journal) for attribution (\"Attribution Parties\") in
