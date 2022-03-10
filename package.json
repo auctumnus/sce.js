@@ -2,11 +2,19 @@
   "name": "sce",
   "version": "1.0.0",
   "description": "Parses and runs Sound Change Engine (SCE) rules.",
+  "source": "src/index.ts",
   "main": "dist/sce.js",
   "module": "dist/sce.mjs",
   "typings": "dist/sce.d.ts",
+  "unpkg": "dist/sce.umd.js",
+  "exports": {
+    "require": "./dist/sce.js",
+    "default": "./dist/sce.modern.js"
+  },
   "scripts": {
-    "build": "rollup -c",
+    "build": "microbundle",
+    "dev": "microbundle watch",
+    "typecheck": "tsc --noEmit",
     "test": "uvu -r ts-node/register test",
     "lint": "eslint --fix . && prettier --write .",
     "test:coverage": "c8 --include=src npm test",
@@ -23,15 +31,12 @@
     "@typescript-eslint/eslint-plugin": "^5.14.0",
     "@typescript-eslint/parser": "^5.14.0",
     "c8": "^7.11.0",
-    "esbuild": "^0.14.5",
     "eslint": "^8.4.1",
     "eslint-config-prettier": "^8.5.0",
+    "microbundle": "^0.14.2",
     "prettier": "^2.5.1",
-    "rollup": "^2.61.1",
-    "rollup-plugin-dts": "^4.0.1",
-    "rollup-plugin-esbuild": "^4.7.2",
     "ts-node": "^10.7.0",
-    "typescript": "^4.5.4",
+    "typescript": "^4.6.2",
     "uvu": "^0.5.3"
   }
 }
