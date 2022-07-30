@@ -5,7 +5,7 @@
   "source": "src/index.ts",
   "main": "dist/sce.js",
   "module": "dist/sce.mjs",
-  "typings": "dist/sce.d.ts",
+  "typings": "dist/index.d.ts",
   "unpkg": "dist/sce.umd.js",
   "exports": {
     "require": "./dist/sce.js",
@@ -20,23 +20,18 @@
     "test:coverage": "c8 --include=src npm test",
     "test:report": "c8 report --reporter=text-lcov > coverage.lcov"
   },
-  "author": {
-    "name": "autumn",
-    "email": "auctumnus@pm.me",
-    "url": "https://autumns.page"
-  },
   "license": "NVPLv7+",
   "devDependencies": {
-    "@types/node": "^17.0.21",
-    "@typescript-eslint/eslint-plugin": "^5.14.0",
-    "@typescript-eslint/parser": "^5.14.0",
-    "c8": "^7.11.0",
-    "eslint": "^8.4.1",
+    "@types/node": "^17.0.45",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
+    "c8": "^7.12.0",
+    "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
-    "microbundle": "^0.14.2",
-    "prettier": "^2.5.1",
-    "ts-node": "^10.7.0",
-    "typescript": "^4.6.2",
-    "uvu": "^0.5.3"
+    "microbundle": "0.15",
+    "prettier": "^2.7.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4",
+    "uvu": "^0.5.6"
   }
 }
