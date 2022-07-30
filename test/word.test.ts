@@ -27,9 +27,13 @@ test('polygraphs internal length', () => {
 
 test('kat polygraphs', () =>
   ["a'b'c", "ab'c", "a'bc", 'abc'].forEach((w) =>
-    assert.is(Word.parse(w, ['a', 'b', 'c', 'ab', 'bc', 'abc'], "'").toString(), w)
+    assert.is(
+      Word.parse(w, ['a', 'b', 'c', 'ab', 'bc', 'abc'], "'").toString(),
+      w
+    )
   ))
 
-test('internal whitespace', () => assert.is(Word.parse('a b').toString(), 'a b'))
+test('internal whitespace', () =>
+  assert.is(Word.parse('a b').toString(), 'a b'))
 
 test.run()
