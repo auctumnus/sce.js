@@ -7,7 +7,7 @@ export class Category {
 
   toString() {
     return (
-      (`Category "${this.name}": ` || 'Anonymous category: ') +
+      (this.name ? `Category "${this.name}": ` : 'Anonymous category: ') +
       this.elements.join(', ')
     )
   }
