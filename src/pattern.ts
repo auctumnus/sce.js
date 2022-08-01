@@ -15,36 +15,37 @@ export const enum WildcardType {
   NON_GREEDY_WORD_BOUNDARY,
 }
 
-interface GraphemeElement {
+export interface GraphemeElement {
   type: ElementType.GRAPHEME
   grapheme: string
 }
 
-interface CategoryElement {
+export interface CategoryElement {
   type: ElementType.CATEGORY
   category: string[]
 }
 
-interface WildcardElement {
+export interface WildcardElement {
   type: ElementType.WILDCARD
   wildcardType: WildcardType
 }
 
-interface OptionalElement {
+export interface OptionalElement {
   type: ElementType.OPTIONAL_SEQUENCE
   pattern: Pattern
 }
 
-interface DittoElement {
+export interface DittoElement {
   type: ElementType.DITTO
 }
 
-interface NumericRepetitionElement {
+export interface NumericRepetitionElement {
   type: ElementType.NUMERIC_REPETITION
   count: number
+  pattern: Pattern
 }
 
-interface WildcardRepetitionElement {
+export interface WildcardRepetitionElement {
   type: ElementType.WILDCARD_REPETITION
   wildcardType: WildcardType.SIMPLE | WildcardType.NON_GREEDY
 }

@@ -9,11 +9,32 @@ const noPolygraphs = (g: string[]) =>
   !g.length || g.every((s) => s.length === 1)
 
 interface Match {
+  /**
+   * Whether this match succeeded.
+   */
   match: true
+  /**
+   * The length of the match.
+   */
   length: number
+  /**
+   * Where the match starts from.
+   */
   startIndex: number
+  /**
+   * The phones covered by the match.
+   */
   content: string[]
+  /**
+   * Diagnostic information about the match.
+   */
   info?: string[]
+  /**
+   * Ranges of phones matched by each element of the pattern.
+   * The first element of the pattern matches the first element of matchRanges,
+   * the second the second, et cetera.
+   */
+  matchRanges: string[][]
 }
 
 type PatternMatch = Match | { match: false; info?: string[] }
@@ -122,6 +143,8 @@ export class Word {
     info.push(`matching pattern to ${this.toString()}`)
     let index = startIndex
     info.push(`matching from ${startIndex} (${this.phones[startIndex]})`)
+    const matchRanges: string[][] = []
+    let lastIndex = startIndex
     for (let elementIndex = 0; elementIndex < pattern.length; elementIndex++) {
       const element = pattern[elementIndex]
       const phone = this.phones[index]
@@ -191,8 +214,9 @@ export class Word {
 
           if (!rest.length) {
             info.push(`nothing after this, getting maximal match`)
-            // i feel like in any sane world this should just fail regardless of if it's word-boundary or not,
-            // but the version of sce on cws as of 2022-8-1 works this way?
+            // i feel like in any sane world this should just fail regardless of
+            // if it's word-boundary or not,  but the version of sce on cws as
+            // of 2022-8-1 works this way?
             if (!isWordBoundary && this.phones[index] === '#') {
               return failedMatch
             }
@@ -206,7 +230,8 @@ export class Word {
 
           info.push(`need to match after wildcard`)
 
-          // If this is a greedy wildcard, we want to get the longest possible sequence, so we should start searching from the farthest index first.
+          // If this is a greedy wildcard, we want to get the longest possible
+          // sequence, so we should start searching from the farthest index first.
           // Otherwise, we start searching from the next.
           // Invariant: lastIndex > index
           const startIndex = isGreedy ? lastIndex : index
@@ -231,15 +256,11 @@ export class Word {
 
         case ElementType.NUMERIC_REPETITION: {
           info.push(`matching numeric repetition, count of ${element.count}`)
-          if (index === 0) return failedMatch
-
-          const lastElement = pattern[elementIndex - 1]
-          if (!lastElement) return failedMatch
 
           let count = element.count
           while (count !== 0) {
             info.push(`count is ${count}`)
-            const result = this.#matchOne([lastElement], index, depth + 1)
+            const result = this.#matchOne(element.pattern, index, depth + 1)
             if (result.match) {
               info.push(`repetition matched!`)
               index += result.length
@@ -259,6 +280,8 @@ export class Word {
         }
       }
       index++
+      matchRanges.push(this.phones.slice(lastIndex, index))
+      lastIndex = index
     }
     info.push('successful match!')
     return {
@@ -267,6 +290,7 @@ export class Word {
       length: index - startIndex,
       content: this.phones.slice(startIndex, index),
       info,
+      matchRanges,
     }
   }
 
