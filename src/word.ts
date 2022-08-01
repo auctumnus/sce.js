@@ -3,7 +3,7 @@
  * @param g A list of graphemes.
  * @returns Whether there are any polygraphs.
  */
-import { ElementType, Pattern } from './pattern'
+import { ElementType, Pattern, WildcardType } from './pattern'
 
 const noPolygraphs = (g: string[]) =>
   !g.length || g.every((s) => s.length === 1)
@@ -170,7 +170,63 @@ export class Word {
         }
 
         case ElementType.WILDCARD: {
-          break
+          const rest = pattern.slice(elementIndex + 1)
+
+          const isGreedy =
+            element.wildcardType === WildcardType.SIMPLE ||
+            element.wildcardType === WildcardType.WORD_BOUNDARY
+          const isWordBoundary =
+            element.wildcardType === WildcardType.WORD_BOUNDARY ||
+            element.wildcardType === WildcardType.NON_GREEDY_WORD_BOUNDARY
+
+          info.push(
+            `matching ${isGreedy ? 'greedy ' : ''}${
+              isWordBoundary ? 'word boundary ' : ''
+            }wildcard`
+          )
+
+          const lastIndex = isWordBoundary
+            ? this.phones.length - 1
+            : this.phones.indexOf('#', index)
+
+          if (!rest.length) {
+            info.push(`nothing after this, getting maximal match`)
+            // i feel like in any sane world this should just fail regardless of if it's word-boundary or not,
+            // but the version of sce on cws as of 2022-8-1 works this way?
+            if (!isWordBoundary && this.phones[index] === '#') {
+              return failedMatch
+            }
+            if (!isGreedy) {
+              break
+            } else {
+              index = lastIndex - 1
+              break
+            }
+          }
+
+          info.push(`need to match after wildcard`)
+
+          // If this is a greedy wildcard, we want to get the longest possible sequence, so we should start searching from the farthest index first.
+          // Otherwise, we start searching from the next.
+          // Invariant: lastIndex > index
+          const startIndex = isGreedy ? lastIndex : index
+          const endIndex = isGreedy ? index : lastIndex
+          let gotSuccessfulMatch = false
+          for (let i = startIndex; i !== endIndex; isGreedy ? i-- : i++) {
+            const result = this.#matchOne(rest, i, depth + 1)
+
+            if (result.match) {
+              info.push(`got successful match!`)
+              index = i - 1
+              gotSuccessfulMatch = true
+              break
+            }
+          }
+          if (gotSuccessfulMatch) {
+            break
+          } else {
+            return failedMatch
+          }
         }
 
         case ElementType.NUMERIC_REPETITION: {

@@ -8,7 +8,7 @@ export const enum ElementType {
   WILDCARD_REPETITION,
 }
 
-const enum WildcardType {
+export const enum WildcardType {
   SIMPLE,
   WORD_BOUNDARY,
   NON_GREEDY,
