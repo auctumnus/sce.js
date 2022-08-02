@@ -48,6 +48,7 @@ export interface NumericRepetitionElement {
 export interface WildcardRepetitionElement {
   type: ElementType.WILDCARD_REPETITION
   wildcardType: WildcardType.SIMPLE | WildcardType.NON_GREEDY
+  pattern: Pattern
 }
 
 export type PatternElement =

@@ -4,7 +4,6 @@ import { Category } from '../src/category'
 
 test('category creation', () => {
   const cat = new Category(['a', 'b', 'c'], 'a')
-  console.log(cat)
   assert.is(cat.elements.length, 3)
   assert.is(cat.name, 'a')
 })

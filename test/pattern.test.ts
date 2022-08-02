@@ -243,6 +243,7 @@ test('numeric repetition', () => {
     },
   ])
   assert.is(matches.length, 1)
+  assert.is(matches[0].length, 3)
 })
 
 test('failing numeric repetition', () => {
