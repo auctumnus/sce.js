@@ -305,4 +305,29 @@ export class Word {
       .map((_, i) => this.#matchOne(pattern, i))
       .filter(({ match }) => match) as Match[]
   }
+
+  /**
+   * Replace a range of phones in this word with another. Combines the set of
+   * graphemes used.
+   * @param start Index to replace from.
+   * @param end Index to stop replacement.
+   * @param replacement The replacement to put in.
+   * @returns A new `Word` with the replacement made.
+   */
+  replace(start: number, end: number, replacement: string[]) {
+    // combine graphs
+    const graphs = [...this.graphs]
+    for (const graph of replacement) {
+      if (!graphs.includes(graph)) {
+        graphs.push(graph)
+      }
+    }
+    graphs.sort((a, b) => b.length - a.length)
+
+    // make replacement
+    const deleteCount = end - start
+    const phones = this.phones.splice(start, deleteCount, ...replacement)
+
+    return new Word(phones, graphs, this.separator)
+  }
 }
